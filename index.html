@@ -3,558 +3,477 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Construction Tools Portal — VITECCONS</title>
+<title>Bộ Công Cụ Xây Dựng — Construction Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700;800&display=swap');
-
   :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --surface2: #16161f;
-    --border: #1e1e2e;
-    --border2: #252535;
-    --text: #e2e0f0;
-    --muted: #5a5875;
-    --accent: #7c6fff;
-    --accent2: #c8f05a;
-    --accent3: #5fbefd;
-    --accent4: #ff7eb3;
-    --glow: rgba(124,111,255,0.15);
-    --mono: 'DM Mono', monospace;
-    --sans: 'Syne', sans-serif;
-    --nav-w: 260px;
-    --header-h: 56px;
+    --bg: #0a0e14;
+    --bg-soft: #0f141c;
+    --surface: #141a24;
+    --surface-2: #1a2230;
+    --border: #232c3d;
+    --border-strong: #2f3a52;
+    --text: #e8ecf3;
+    --text-soft: #aab3c5;
+    --text-muted: #6b7689;
+    --accent: #ffb648;
+    --accent-2: #ff7a45;
+    --ok: #5ad19a;
+    --blue: #5b8dee;
+    --purple: #a472f0;
+    --pink: #ec5ea8;
+    --shadow: 0 12px 40px rgba(0,0,0,.4);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,182,72,.08), transparent 60%),
+      radial-gradient(1000px 500px at 110% 10%, rgba(91,141,238,.06), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
   }
 
-  /* ── HEADER ── */
-  header {
-    height: var(--header-h);
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* HEADER */
+  .header {
     display: flex;
     align-items: center;
-    padding: 0 20px;
+    justify-content: space-between;
+    flex-wrap: wrap;
     gap: 16px;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 100;
+    margin-bottom: 56px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
   }
 
-  .logo-mark {
-    width: 32px; height: 32px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 800; color: #0a0a0f;
-    letter-spacing: -0.5px;
-    flex-shrink: 0;
-  }
-
-  .logo-text {
-    font-size: 15px; font-weight: 700;
-    letter-spacing: 0.02em;
-    color: var(--text);
-  }
-  .logo-text span { color: var(--accent); }
-
-  .header-divider {
-    width: 1px; height: 20px;
-    background: var(--border2);
-    margin: 0 4px;
-  }
-
-  .header-sub {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: var(--mono);
-    letter-spacing: 0.05em;
-  }
-
-  .header-spacer { flex: 1; }
-
-  .header-badge {
-    font-family: var(--mono);
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    border: 1px solid var(--border2);
-    color: var(--muted);
-    letter-spacing: 0.05em;
-  }
-
-  /* ── LAYOUT ── */
-  .layout {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  /* ── SIDEBAR ── */
-  nav {
-    width: var(--nav-w);
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    overflow-y: auto;
-  }
-
-  .nav-section-label {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    color: var(--muted);
-    text-transform: uppercase;
-    padding: 20px 16px 8px;
-  }
-
-  .nav-item {
+  .brand {
     display: flex;
     align-items: center;
-    gap: 11px;
-    padding: 11px 16px;
-    cursor: pointer;
-    border-radius: 0;
-    transition: background 0.15s;
-    border-left: 2px solid transparent;
-    user-select: none;
-    position: relative;
+    gap: 14px;
   }
 
-  .nav-item:hover {
-    background: var(--surface2);
-  }
-
-  .nav-item.active {
-    background: var(--glow);
-    border-left-color: var(--accent);
-  }
-
-  .nav-icon {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-
-  .nav-label {
-    flex: 1;
-  }
-
-  .nav-label-main {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.3;
-  }
-
-  .nav-item.active .nav-label-main { color: var(--accent); }
-
-  .nav-label-sub {
-    font-size: 10px;
-    color: var(--muted);
-    font-family: var(--mono);
-    margin-top: 2px;
-    line-height: 1.2;
-  }
-
-  .nav-tag {
-    font-size: 9px;
-    font-family: var(--mono);
-    padding: 2px 5px;
-    border-radius: 3px;
-    letter-spacing: 0.04em;
-    flex-shrink: 0;
-  }
-
-  nav .separator {
-    height: 1px;
-    background: var(--border);
-    margin: 8px 16px;
-  }
-
-  nav footer {
-    margin-top: auto;
-    padding: 16px;
-    border-top: 1px solid var(--border);
-    font-size: 10px;
-    font-family: var(--mono);
-    color: var(--muted);
-    line-height: 1.6;
-  }
-
-  /* ── CONTENT ── */
-  .content {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .tool-frame {
-    position: absolute;
-    inset: 0;
-    border: none;
-    width: 100%;
-    height: 100%;
-    display: none;
-    background: var(--bg);
-  }
-
-  .tool-frame.active { display: block; }
-
-  /* ── HOME SCREEN ── */
-  #home-screen {
-    position: absolute;
-    inset: 0;
+  .brand-mark {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-radius: 10px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px;
-    overflow-y: auto;
+    font-weight: 800;
+    font-size: 20px;
+    color: #1a1108;
+    box-shadow: 0 8px 24px rgba(255,122,69,.25);
   }
 
-  #home-screen.hidden { display: none; }
+  .brand-text h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
 
-  .home-hero {
-    text-align: center;
+  .brand-text p {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+    margin-top: 2px;
+  }
+
+  .meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-soft);
+    font-family: 'JetBrains Mono', monospace;
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+  }
+
+  .meta-pill .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ok);
+    box-shadow: 0 0 8px var(--ok);
+  }
+
+  /* HERO */
+  .hero {
     margin-bottom: 48px;
   }
 
-  .home-hero h1 {
-    font-size: 36px;
+  .hero h2 {
+    font-size: clamp(28px, 4vw, 44px);
     font-weight: 800;
-    letter-spacing: -0.03em;
-    background: linear-gradient(135deg, var(--text) 0%, var(--muted) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 14px;
+    max-width: 800px;
   }
 
-  .home-hero h1 em {
-    font-style: normal;
-    -webkit-text-fill-color: transparent;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 100%);
+  .hero h2 .accent {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
     -webkit-background-clip: text;
     background-clip: text;
+    color: transparent;
   }
 
-  .home-hero p {
-    color: var(--muted);
-    font-size: 14px;
-    font-family: var(--mono);
-    letter-spacing: 0.04em;
+  .hero p {
+    font-size: 16px;
+    color: var(--text-soft);
+    max-width: 640px;
   }
 
+  /* SECTION LABEL */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .section-label::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--border-strong);
+  }
+
+  /* GRID */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
-    width: 100%;
-    max-width: 900px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 18px;
   }
 
+  /* CARD */
   .card {
+    position: relative;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 24px;
-    cursor: pointer;
-    transition: all 0.2s;
+    text-decoration: none;
+    color: inherit;
+    transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    position: relative;
-    overflow: hidden;
+    min-height: 220px;
   }
 
   .card::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    border-radius: 12px 12px 0 0;
+    inset: 0;
+    background: var(--card-glow, transparent);
+    opacity: 0;
+    transition: opacity .3s ease;
+    pointer-events: none;
   }
 
   .card:hover {
-    border-color: var(--border2);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    transform: translateY(-3px);
+    border-color: var(--border-strong);
+    background: var(--surface-2);
   }
 
-  .card-icon-wrap {
-    width: 44px; height: 44px;
+  .card:hover::before {
+    opacity: 1;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .card-icon {
+    width: 44px;
+    height: 44px;
     border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--icon-bg, var(--surface-2));
+    border: 1px solid var(--icon-border, var(--border));
+    color: var(--icon-color, var(--accent));
+    flex-shrink: 0;
+  }
+
+  .card-icon svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 1.75;
+  }
+
+  .card-tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    padding: 4px 8px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 4px;
   }
 
   .card-title {
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 700;
-    color: var(--text);
-    line-height: 1.3;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
   }
 
   .card-desc {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.6;
-    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-soft);
+    line-height: 1.55;
     flex: 1;
   }
 
-  .card-cta {
+  .card-foot {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-tech {
+    display: flex;
     gap: 6px;
-    font-size: 11px;
-    font-family: var(--mono);
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    margin-top: 4px;
+    flex-wrap: wrap;
   }
 
-  .card-cta::after {
-    content: '→';
-    font-size: 14px;
+  .tech-chip {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    padding: 3px 7px;
+    background: var(--bg-soft);
+    border-radius: 4px;
   }
 
-  /* Color themes per card */
-  .c1::before { background: var(--accent); }
-  .c1 .card-icon-wrap { background: rgba(124,111,255,0.12); }
-  .c1 .card-cta { color: var(--accent); }
-  .c1:hover { box-shadow: 0 8px 32px rgba(124,111,255,0.12); }
-
-  .c2::before { background: var(--accent2); }
-  .c2 .card-icon-wrap { background: rgba(200,240,90,0.1); }
-  .c2 .card-cta { color: var(--accent2); }
-  .c2:hover { box-shadow: 0 8px 32px rgba(200,240,90,0.1); }
-
-  .c3::before { background: var(--accent3); }
-  .c3 .card-icon-wrap { background: rgba(95,190,253,0.1); }
-  .c3 .card-cta { color: var(--accent3); }
-  .c3:hover { box-shadow: 0 8px 32px rgba(95,190,253,0.1); }
-
-  .c4::before { background: var(--accent4); }
-  .c4 .card-icon-wrap { background: rgba(255,126,179,0.1); }
-  .c4 .card-cta { color: var(--accent4); }
-  .c4:hover { box-shadow: 0 8px 32px rgba(255,126,179,0.1); }
-
-  /* ── MOBILE ── */
-  .hamburger {
-    display: none;
-    background: none; border: none;
-    color: var(--text); font-size: 20px;
-    cursor: pointer; padding: 4px;
+  .card-arrow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: gap .2s ease;
   }
 
-  @media (max-width: 768px) {
-    :root { --nav-w: 100vw; }
-    nav {
-      position: fixed;
-      top: var(--header-h);
-      left: 0; bottom: 0;
-      z-index: 200;
-      transform: translateX(-100%);
-      transition: transform 0.25s ease;
-      width: 280px;
-    }
-    nav.open { transform: translateX(0); }
-    .hamburger { display: flex; align-items: center; justify-content: center; }
-    .content { width: 100%; }
-    .home-hero h1 { font-size: 24px; }
-    .grid { grid-template-columns: 1fr; }
+  .card:hover .card-arrow {
+    gap: 8px;
+  }
+
+  /* Per-card color themes */
+  .card.theme-amber { --icon-bg: rgba(255,182,72,.1); --icon-border: rgba(255,182,72,.25); --icon-color: var(--accent); --card-glow: radial-gradient(400px 200px at 0% 0%, rgba(255,182,72,.06), transparent 70%); }
+  .card.theme-blue  { --icon-bg: rgba(91,141,238,.1); --icon-border: rgba(91,141,238,.25); --icon-color: var(--blue); --card-glow: radial-gradient(400px 200px at 0% 0%, rgba(91,141,238,.06), transparent 70%); }
+  .card.theme-green { --icon-bg: rgba(90,209,154,.1); --icon-border: rgba(90,209,154,.25); --icon-color: var(--ok); --card-glow: radial-gradient(400px 200px at 0% 0%, rgba(90,209,154,.06), transparent 70%); }
+  .card.theme-purple { --icon-bg: rgba(164,114,240,.1); --icon-border: rgba(164,114,240,.25); --icon-color: var(--purple); --card-glow: radial-gradient(400px 200px at 0% 0%, rgba(164,114,240,.06), transparent 70%); }
+  .card.theme-pink { --icon-bg: rgba(236,94,168,.1); --icon-border: rgba(236,94,168,.25); --icon-color: var(--pink); --card-glow: radial-gradient(400px 200px at 0% 0%, rgba(236,94,168,.06), transparent 70%); }
+
+  .card.theme-blue .card-arrow { color: var(--blue); }
+  .card.theme-green .card-arrow { color: var(--ok); }
+  .card.theme-purple .card-arrow { color: var(--purple); }
+  .card.theme-pink .card-arrow { color: var(--pink); }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .footer a {
+    color: var(--text-soft);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1px;
+    transition: color .2s ease, border-color .2s ease;
+  }
+
+  .footer a:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 32px 16px 60px; }
+    .hero { margin-bottom: 36px; }
+    .grid { gap: 14px; }
+    .card { padding: 20px; min-height: auto; }
   }
 </style>
 </head>
 <body>
+  <div class="container">
 
-<header>
-  <button class="hamburger" onclick="toggleNav()" aria-label="Menu">☰</button>
-  <div class="logo-mark">V</div>
-  <div class="logo-text">VITEC<span>CONS</span></div>
-  <div class="header-divider"></div>
-  <div class="header-sub">Construction Tools Portal</div>
-  <div class="header-spacer"></div>
-  <div class="header-badge">v1.0 · 2025</div>
-</header>
-
-<div class="layout">
-  <nav id="sidebar">
-    <div class="nav-section-label">Công Cụ</div>
-
-    <div class="nav-item active" onclick="showHome(this)" data-tool="home">
-      <div class="nav-icon" style="background:rgba(124,111,255,0.1);">🏠</div>
-      <div class="nav-label">
-        <div class="nav-label-main">Trang Chủ</div>
-        <div class="nav-label-sub">Portal overview</div>
+    <header class="header">
+      <div class="brand">
+        <div class="brand-mark">⚒</div>
+        <div class="brand-text">
+          <h1>Construction Toolkit</h1>
+          <p>vi · bộ công cụ xây dựng nội bộ</p>
+        </div>
       </div>
+      <div class="meta-pill">
+        <span class="dot"></span>
+        <span>5 modules · static · offline-ready</span>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h2>Bộ công cụ thi công, dự toán &amp;<br><span class="accent">phân tích định mức</span> xây dựng.</h2>
+      <p>Tập hợp các tiện ích chuyên dụng cho công trường: định mức RSMeans, biểu đồ huy động, tính khối lượng thép, checklist tầng hầm và làm sạch dữ liệu Excel. Chạy hoàn toàn trên trình duyệt — không cần server.</p>
+    </section>
+
+    <div class="section-label">Modules</div>
+
+    <div class="grid">
+
+      <a href="dinh-muc-rsmeans.html" class="card theme-amber">
+        <div class="card-head">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-4 3 3 5-6"/><circle cx="7" cy="16" r="1.2"/><circle cx="11" cy="12" r="1.2"/><circle cx="14" cy="15" r="1.2"/><circle cx="19" cy="9" r="1.2"/></svg>
+          </div>
+          <span class="card-tag">v6.0</span>
+        </div>
+        <h3 class="card-title">Định Mức Năng Suất — RSMeans</h3>
+        <p class="card-desc">Tra cứu và tính toán định mức năng suất xây dựng theo chuẩn RSMeans. Hỗ trợ biểu đồ trực quan cho các hạng mục thi công chính.</p>
+        <div class="card-foot">
+          <div class="card-tech">
+            <span class="tech-chip">Chart.js</span>
+            <span class="tech-chip">RSMeans</span>
+          </div>
+          <span class="card-arrow">Open →</span>
+        </div>
+      </a>
+
+      <a href="bieu-do-huy-dong.html" class="card theme-blue">
+        <div class="card-head">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="4" height="16" rx="1"/><rect x="10" y="9" width="4" height="11" rx="1"/><rect x="17" y="6" width="4" height="14" rx="1"/></svg>
+          </div>
+          <span class="card-tag">chart</span>
+        </div>
+        <h3 class="card-title">Biểu Đồ Huy Động Nhân Lực &amp; Máy Móc</h3>
+        <p class="card-desc">Tạo biểu đồ huy động nhân công và thiết bị cho dự án nhà xưởng. Xuất PDF chất lượng cao để in ấn và trình duyệt khách hàng.</p>
+        <div class="card-foot">
+          <div class="card-tech">
+            <span class="tech-chip">jsPDF</span>
+            <span class="tech-chip">html2canvas</span>
+          </div>
+          <span class="card-arrow">Open →</span>
+        </div>
+      </a>
+
+      <a href="metal-calculator.html" class="card theme-amber">
+        <div class="card-head">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+          </div>
+          <span class="card-tag">calc</span>
+        </div>
+        <h3 class="card-title">Metal Profiles Calculator</h3>
+        <p class="card-desc">Tính khối lượng thép hình theo profile: H, I, U, L, hộp, ống... Hỗ trợ nhiều quy cách và xuất kết quả nhanh chóng.</p>
+        <div class="card-foot">
+          <div class="card-tech">
+            <span class="tech-chip">Vanilla JS</span>
+            <span class="tech-chip">Steel</span>
+          </div>
+          <span class="card-arrow">Open →</span>
+        </div>
+      </a>
+
+      <a href="checklist-tang-ham.html" class="card theme-green">
+        <div class="card-head">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <span class="card-tag">QA/QC</span>
+        </div>
+        <h3 class="card-title">Checklist Thi Công Tầng Hầm</h3>
+        <p class="card-desc">Danh mục kiểm tra đầy đủ cho công tác thi công tầng hầm: từ tường vây, đào đất, chống thấm đến đổ bê tông. In ra giấy A4 sẵn dùng.</p>
+        <div class="card-foot">
+          <div class="card-tech">
+            <span class="tech-chip">Print-ready</span>
+            <span class="tech-chip">A4</span>
+          </div>
+          <span class="card-arrow">Open →</span>
+        </div>
+      </a>
+
+      <a href="excel-cleaner.html" class="card theme-purple">
+        <div class="card-head">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 14l2 2 4-4"/></svg>
+          </div>
+          <span class="card-tag">utility</span>
+        </div>
+        <h3 class="card-title">Excel Cleaner</h3>
+        <p class="card-desc">Làm sạch file Excel: bỏ formatting thừa, ô trống, dòng rỗng, dữ liệu rác. Xử lý hoàn toàn trên trình duyệt, không upload server.</p>
+        <div class="card-foot">
+          <div class="card-tech">
+            <span class="tech-chip">JSZip</span>
+            <span class="tech-chip">.xlsx</span>
+          </div>
+          <span class="card-arrow">Open →</span>
+        </div>
+      </a>
+
     </div>
 
-    <div class="nav-item" onclick="loadTool(this, 'dinh-muc-rsmeans-v6.html')" data-tool="rsm">
-      <div class="nav-icon" style="background:rgba(124,111,255,0.1);">📐</div>
-      <div class="nav-label">
-        <div class="nav-label-main">Định Mức RSMeans</div>
-        <div class="nav-label-sub">Năng suất xây dựng v6.0</div>
-      </div>
-      <span class="nav-tag" style="background:rgba(124,111,255,0.15);color:#7c6fff;">CALC</span>
-    </div>
-
-    <div class="nav-item" onclick="loadTool(this, 'checklist-tang-ham.html')" data-tool="checklist">
-      <div class="nav-icon" style="background:rgba(200,240,90,0.1);">✅</div>
-      <div class="nav-label">
-        <div class="nav-label-main">Checklist Tầng Hầm</div>
-        <div class="nav-label-sub">Thi công tầng hầm</div>
-      </div>
-      <span class="nav-tag" style="background:rgba(200,240,90,0.1);color:#c8f05a;">QC</span>
-    </div>
-
-    <div class="nav-item" onclick="loadTool(this, 'bieu-do-huy-dong.html')" data-tool="bieudo">
-      <div class="nav-icon" style="background:rgba(95,190,253,0.1);">📊</div>
-      <div class="nav-label">
-        <div class="nav-label-main">Biểu Đồ Huy Động</div>
-        <div class="nav-label-sub">Nhân lực & máy móc</div>
-      </div>
-      <span class="nav-tag" style="background:rgba(95,190,253,0.1);color:#5fbefd;">CHART</span>
-    </div>
-
-    <div class="nav-item" onclick="loadTool(this, 'excel-cleaner.html')" data-tool="excel">
-      <div class="nav-icon" style="background:rgba(255,126,179,0.1);">🧹</div>
-      <div class="nav-label">
-        <div class="nav-label-main">Excel Cleaner</div>
-        <div class="nav-label-sub">Làm sạch file Excel</div>
-      </div>
-      <span class="nav-tag" style="background:rgba(255,126,179,0.1);color:#ff7eb3;">TOOL</span>
-    </div>
-
-    <div class="separator"></div>
-    <div class="nav-section-label">Trạng Thái</div>
-    <div class="nav-item" style="cursor:default;">
-      <div class="nav-icon" style="background:rgba(200,240,90,0.06);">🌐</div>
-      <div class="nav-label">
-        <div class="nav-label-main" style="font-size:11px;color:var(--muted);">GitHub Pages Ready</div>
-        <div class="nav-label-sub">Static deploy · No server</div>
-      </div>
-    </div>
-
-    <footer>
-      VITECCONS © 2025<br>
-      Construction Tools v1.0<br>
-      4 modules · Static HTML
+    <footer class="footer">
+      <div>© Construction Toolkit · static deploy · GitHub Pages</div>
+      <div>Built with vanilla HTML/CSS/JS</div>
     </footer>
-  </nav>
 
-  <div class="content">
-    <!-- HOME SCREEN -->
-    <div id="home-screen">
-      <div class="home-hero">
-        <h1>Construction<br><em>Tools Portal</em></h1>
-        <p>// 4 công cụ xây dựng · chọn module bên trái hoặc bên dưới</p>
-      </div>
-
-      <div class="grid">
-        <div class="card c1" onclick="loadToolFromCard('dinh-muc-rsmeans-v6.html', 'rsm')">
-          <div class="card-icon-wrap">📐</div>
-          <div class="card-title">Định Mức Năng Suất RSMeans v6.0</div>
-          <div class="card-desc">Tra cứu định mức năng suất lao động và máy thi công theo chuẩn RSMeans. Tính toán hao phí nhân công, vật tư.</div>
-          <div class="card-cta">Mở công cụ</div>
-        </div>
-
-        <div class="card c2" onclick="loadToolFromCard('checklist-tang-ham.html', 'checklist')">
-          <div class="card-icon-wrap">✅</div>
-          <div class="card-title">Checklist Thi Công Tầng Hầm</div>
-          <div class="card-desc">Danh sách kiểm tra thi công tầng hầm theo trình tự. Đảm bảo chất lượng và an toàn công trình.</div>
-          <div class="card-cta">Mở công cụ</div>
-        </div>
-
-        <div class="card c3" onclick="loadToolFromCard('bieu-do-huy-dong.html', 'bieudo')">
-          <div class="card-icon-wrap">📊</div>
-          <div class="card-title">Biểu Đồ Huy Động Nhân Lực & Máy Móc</div>
-          <div class="card-desc">Lập biểu đồ huy động nhân lực và máy móc cho dự án nhà xưởng. Xuất PDF chuyên nghiệp.</div>
-          <div class="card-cta">Mở công cụ</div>
-        </div>
-
-        <div class="card c4" onclick="loadToolFromCard('excel-cleaner.html', 'excel')">
-          <div class="card-icon-wrap">🧹</div>
-          <div class="card-title">Excel Cleaner</div>
-          <div class="card-desc">Làm sạch và chuẩn hóa file Excel. Xử lý dữ liệu, loại bỏ lỗi, format chuẩn để dùng trong dự án.</div>
-          <div class="card-cta">Mở công cụ</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- IFRAMES for each tool -->
-    <iframe id="frame-rsm"       class="tool-frame" src="" title="Định Mức RSMeans"></iframe>
-    <iframe id="frame-checklist" class="tool-frame" src="" title="Checklist Tầng Hầm"></iframe>
-    <iframe id="frame-bieudo"    class="tool-frame" src="" title="Biểu Đồ Huy Động"></iframe>
-    <iframe id="frame-excel"     class="tool-frame" src="" title="Excel Cleaner"></iframe>
   </div>
-</div>
-
-<script>
-  const frameMap = {
-    'rsm':      'frame-rsm',
-    'checklist':'frame-checklist',
-    'bieudo':   'frame-bieudo',
-    'excel':    'frame-excel',
-  };
-
-  let currentNav = document.querySelector('.nav-item.active');
-
-  function setActiveNav(el) {
-    if (currentNav) currentNav.classList.remove('active');
-    el.classList.add('active');
-    currentNav = el;
-    // close mobile nav
-    document.getElementById('sidebar').classList.remove('open');
-  }
-
-  function showHome(el) {
-    setActiveNav(el);
-    document.getElementById('home-screen').classList.remove('hidden');
-    document.querySelectorAll('.tool-frame').forEach(f => f.classList.remove('active'));
-  }
-
-  function loadTool(el, src) {
-    const tool = el.dataset.tool;
-    const frameId = frameMap[tool];
-    if (!frameId) return;
-
-    setActiveNav(el);
-    document.getElementById('home-screen').classList.add('hidden');
-    document.querySelectorAll('.tool-frame').forEach(f => f.classList.remove('active'));
-
-    const frame = document.getElementById(frameId);
-    if (!frame.src || !frame.src.endsWith(src)) {
-      frame.src = src;
-    }
-    frame.classList.add('active');
-  }
-
-  function loadToolFromCard(src, toolKey) {
-    const navEl = document.querySelector(`.nav-item[data-tool="${toolKey}"]`);
-    if (navEl) loadTool(navEl, src);
-  }
-
-  function toggleNav() {
-    document.getElementById('sidebar').classList.toggle('open');
-  }
-</script>
 </body>
 </html>
