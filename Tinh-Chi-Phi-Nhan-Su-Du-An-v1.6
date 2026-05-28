@@ -1,0 +1,2623 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phần Mềm Tính Chi Phí Nhân Sự Dự Án — v1.0</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f0f2f5;color:#1a1a2e;font-size:13px;line-height:1.5}
+.root{max-width:1400px;margin:0 auto;padding:16px 12px}
+.header{background:linear-gradient(135deg,#0f3460,#16213e,#1a1a2e);border-radius:14px;padding:22px 20px 16px;color:#fff;margin-bottom:14px}
+.header h1{font-size:18px;font-weight:700;margin:0}
+.header p{font-size:11px;opacity:.7;margin:2px 0 0}
+.header-row{display:flex;align-items:center;gap:10px}
+.logo{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#e94560,#ff6b6b);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;color:#fff}
+.tags{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap;font-size:10px;opacity:.6}
+.tags span{background:rgba(255,255,255,.1);padding:2px 8px;border-radius:14px}
+
+.tab-bar{display:flex;gap:4px;margin-bottom:12px;background:#eef1f6;border-radius:10px;padding:3px;flex-wrap:wrap}
+.tab-btn{flex:1;min-width:120px;padding:9px 6px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:12px;background:transparent;color:#555;transition:all .2s}
+.tab-btn.active{background:#16213e;color:#fff}
+
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Project input section */
+.section-box{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.04);border:1px solid #e8e8ee}
+.section-title{font-weight:700;font-size:13px;margin-bottom:10px;color:#0f3460;border-bottom:2px solid #eef1f6;padding-bottom:6px}
+.input-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.input-group{display:flex;flex-direction:column;gap:4px}
+.input-group label{font-size:11px;font-weight:700;color:#555}
+.input-group input,.input-group select{padding:9px 12px;border:1.5px solid #dde;border-radius:9px;font-size:13px;outline:none;background:#f8f9fc;transition:border-color .15s,background .15s}
+.input-group input:focus,.input-group select:focus{border-color:#0f3460;background:#fff;box-shadow:0 0 0 3px rgba(15,52,96,.08)}
+
+/* Table */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid #e8e8ee;box-shadow:0 1px 6px rgba(0,0,0,.03);margin-bottom:12px;background:#fff}
+table{width:100%;border-collapse:collapse;min-width:1050px}
+thead tr{background:#16213e;color:#fff}
+th{padding:10px 8px;text-align:left;font-weight:600;font-size:11px;white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid #eee;font-size:12px}
+tbody tr{transition:background .15s}
+tbody tr:nth-child(even){background:#f7f8fb}
+tbody tr:hover{background:#eef1f8!important}
+.row-active{background:#fff8e8!important}
+.row-active:nth-child(even){background:#fff8e8!important}
+
+.badge{display:inline-block;background:#e0e5f0;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600;color:#0f3460}
+.badge-cm{background:#dbeafe;color:#1e40af}
+.badge-tm{background:#fee2e2;color:#991b1b}
+.badge-qlcc{background:#ede9fe;color:#5b21b6;font-weight:800}
+.badge-ql{background:#dcfce7;color:#166534}
+.badge-cv{background:#fef3c7;color:#854d0e}
+.badge-nv{background:#f3e8ff;color:#6b21a8}
+
+.num-r{text-align:right;font-variant-numeric:tabular-nums}
+.tc{text-align:center}
+
+/* Inputs in table */
+.qty-input,.month-input{width:70px;text-align:center;font-weight:700;font-size:13px;padding:5px 6px;border:1.5px solid #dde;border-radius:7px;background:#fffbe6;outline:none;-moz-appearance:textfield;transition:border-color .15s,background .15s}
+.qty-input::-webkit-outer-spin-button,.qty-input::-webkit-inner-spin-button,.month-input::-webkit-outer-spin-button,.month-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.qty-input:focus,.month-input:focus{border-color:#e94560;background:#fff8e8;box-shadow:0 0 0 3px rgba(233,69,96,.08)}
+
+/* Summary cards */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+.card{background:#fff;border-radius:10px;padding:14px 16px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.card-val{font-size:20px;font-weight:800}
+.card-label{font-size:10px;color:#777;margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.card-sub{font-size:11px;color:#888;margin-top:4px}
+
+/* Reference table CCM */
+.ccm-table{width:100%;border-collapse:collapse;font-size:12px}
+.ccm-table th{background:#fef9c3;color:#854d0e;padding:8px;text-align:center;font-size:11px;border:1px solid #fde68a}
+.ccm-table td{padding:7px 8px;border:1px solid #fde68a;text-align:center}
+.ccm-table .label{font-weight:700;background:#fffbeb;text-align:left}
+.ccm-table .pct{font-weight:700;color:#0f3460}
+.ccm-table .pct-highlight{background:#dbeafe;color:#1e40af;font-weight:800}
+
+/* Action buttons */
+.btn{padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:12px;color:#fff;transition:all .2s}
+.btn-primary{background:#0f3460}
+.btn-primary:hover{background:#16213e}
+.btn-success{background:#0a9396}
+.btn-success:hover{background:#087a7e}
+.btn-danger{background:#e94560}
+.btn-danger:hover{background:#d13350}
+.btn-secondary{background:#aaa}
+.btn-secondary:hover{background:#888}
+.btn-purple{background:#7b2cbf}
+.btn-purple:hover{background:#6a1b9a}
+
+.action-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+
+/* Result alert */
+.alert{padding:14px 16px;border-radius:10px;margin-bottom:12px;font-size:13px;line-height:1.6}
+.alert-success{background:#dcfce7;border:1.5px solid #86efac;color:#166534}
+.alert-warning{background:#fef3c7;border:1.5px solid #fcd34d;color:#854d0e}
+.alert-danger{background:#fee2e2;border:1.5px solid #fca5a5;color:#991b1b}
+.alert-info{background:#dbeafe;border:1.5px solid #93c5fd;color:#1e40af}
+.alert b{font-weight:800}
+
+/* Footer */
+.footer{margin-top:14px;padding:12px 14px;background:#f8f9fc;border-radius:10px;font-size:11px;color:#777;line-height:1.7;border:1px solid #e8e8ee}
+
+/* Region toggle inline in row */
+.region-toggle{display:inline-flex;gap:2px;background:#eef1f6;border-radius:6px;padding:2px}
+.region-toggle button{padding:3px 8px;border:none;background:transparent;cursor:pointer;font-size:10px;font-weight:600;color:#666;border-radius:4px;transition:all .15s}
+.region-toggle button.active{background:#16213e;color:#fff}
+
+.notice{font-size:11px;color:#888;font-style:italic;margin-top:6px}
+
+/* Print-friendly */
+@media print{
+  body{background:#fff}
+  .tab-bar,.action-bar,.btn,.no-print{display:none!important}
+  .tab-panel{display:block!important}
+}
+
+@media(max-width:640px){
+  .header h1{font-size:15px}
+  .summary-grid{grid-template-columns:repeat(2,1fr)}
+  .tab-bar{gap:2px}
+  .tab-btn{font-size:11px;min-width:90px}
+}
+
+.row-total{background:#0f3460!important;color:#fff;font-weight:800}
+.row-total td{color:#fff!important;border-bottom:none}
+
+.scope-tag{display:inline-block;font-size:9px;padding:1px 5px;border-radius:3px;background:#16213e;color:#fff;margin-left:4px;font-weight:600}
+
+.chart-bar{display:inline-block;height:12px;background:linear-gradient(90deg,#0a9396,#0f3460);border-radius:3px;vertical-align:middle;margin-right:6px;min-width:2px}
+
+.info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #eee;font-size:12px}
+.info-row:last-child{border-bottom:none}
+.info-row b{color:#0f3460}
+
+/* === v1.2: Auto-allocation + PMBOK === */
+.alloc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:8px}
+.alloc-card{padding:14px;border-radius:10px;text-align:center;border:2px solid}
+.alloc-card.ql{background:#fef3c7;border-color:#f59e0b}
+.alloc-card.cv{background:#dbeafe;border-color:#3b82f6}
+.alloc-card.nv{background:#dcfce7;border-color:#22c55e}
+.alloc-card .ratio{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.7}
+.alloc-card .count{font-size:28px;font-weight:800;line-height:1.2;margin:4px 0}
+.alloc-card .label{font-size:11px;color:#555}
+.alloc-card .pct{font-size:13px;font-weight:700;margin-top:6px}
+
+.rule-compare-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.rule-compare-tbl th{background:#1e3a8a;color:#fff;padding:8px;font-size:11px;text-align:center}
+.rule-compare-tbl td{padding:7px 8px;border-bottom:1px solid #e5e7eb;text-align:center}
+.rule-compare-tbl td.rule-name{text-align:left;font-weight:700;background:#f1f5f9}
+.rule-compare-tbl tr.active-rule{background:#fef3c7}
+.rule-compare-tbl tr.active-rule td{background:#fef3c7!important;font-weight:700}
+
+/* RACI matrix */
+.raci-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.raci-tbl th{background:#6b21a8;color:#fff;padding:7px 4px;font-size:10px;text-align:center;border:1px solid #581c87}
+.raci-tbl th:first-child{text-align:left;background:#581c87}
+.raci-tbl td{padding:6px;border:1px solid #e5e7eb;text-align:center}
+.raci-tbl td:first-child{text-align:left;font-weight:600;background:#faf5ff;font-size:12px}
+.raci-tbl td.r{background:#fee2e2;color:#991b1b;font-weight:800}
+.raci-tbl td.a{background:#dbeafe;color:#1e40af;font-weight:800}
+.raci-tbl td.c{background:#fef3c7;color:#854d0e;font-weight:700}
+.raci-tbl td.i{background:#e0e7ff;color:#3730a3;font-weight:600}
+
+/* Process timeline */
+.timeline{display:flex;align-items:stretch;border-radius:8px;overflow:hidden;margin:10px 0;min-height:44px}
+.timeline-phase{display:flex;align-items:center;justify-content:center;padding:8px 6px;color:#fff;font-size:11px;font-weight:700;text-align:center;line-height:1.3;position:relative}
+.timeline-phase .phase-pct{font-size:10px;opacity:.85;display:block;font-weight:600}
+
+.process-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+.process-table th{background:#7b2cbf;color:#fff;padding:8px;font-size:11px;text-align:left}
+.process-table td{padding:8px;border-bottom:1px solid #eee}
+.process-table td.tc{text-align:center}
+.process-table .phase-name{font-weight:700;color:#6b21a8}
+
+/* ISO 21502 role cards */
+.iso-role-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.iso-role-card{padding:12px;background:#f5f3ff;border-left:4px solid #7b2cbf;border-radius:8px}
+.iso-role-card .role-title{font-weight:800;color:#6b21a8;font-size:12px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+.iso-role-card .role-desc{font-size:11px;color:#666;margin-bottom:6px;font-style:italic}
+.iso-role-card .role-codes{font-size:11px;line-height:1.7}
+.iso-role-card .role-codes b{color:#0f3460;font-family:monospace}
+</style>
+</head>
+<body>
+<div class="root">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-row">
+      <div class="logo">NS</div>
+      <div>
+        <h1>Phần Mềm Tính Chi Phí Nhân Sự Dự Án</h1>
+        <p>3 nhóm CCM (NX/CT/TT) | Tính Phổ Thông | Flow Diagram | Đồng bộ State | PMBOK + ISO 21502 | v1.6</p>
+      </div>
+    </div>
+    <div class="tags">
+      <span>3 nhóm: Nhà xưởng / Cao tầng / Thấp tầng</span>
+      <span>State đồng bộ toàn tab</span>
+      <span>Flow diagram trực quan</span>
+      <span>5 công thức Định biên 2026</span>
+      <span>Hệ số biến động thời gian</span>
+      <span>PMBOK + ISO 21502</span>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('input')">📋&nbsp;Thông tin DA</button>
+    <button class="tab-btn" onclick="switchTab('quick')">⚡&nbsp;Tính Phổ Thông</button>
+    <button class="tab-btn" onclick="switchTab('auto')">🎯&nbsp;Phân bổ Tự động</button>
+    <button class="tab-btn" onclick="switchTab('staff')">👥&nbsp;Cơ cấu NS</button>
+    <button class="tab-btn" onclick="switchTab('pmbok')">📐&nbsp;PMBOK / ISO</button>
+    <button class="tab-btn" onclick="switchTab('summary')">📊&nbsp;Tổng hợp</button>
+    <button class="tab-btn" onclick="switchTab('report')">📈&nbsp;Báo cáo</button>
+  </div>
+
+  <!-- FLOW INDICATOR — luôn hiển thị, làm nổi bật tab hiện tại -->
+  <div id="flowBar" style="display:flex;align-items:center;gap:0;margin-bottom:12px;background:#fff;border-radius:10px;border:1px solid #e8e8ee;overflow:hidden;font-size:11px;flex-wrap:wrap"></div>
+
+  <!-- ============== TAB 1: PROJECT INPUT ============== -->
+  <div class="tab-panel active" id="tab-input">
+
+    <div class="section-box">
+      <div class="section-title">🏗️ Thông số đầu vào dự án</div>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Tên Dự án</label>
+          <input type="text" id="projectName" placeholder="VD: Chung cư ABC..." value="">
+        </div>
+        <div class="input-group">
+          <label>Chủ đầu tư</label>
+          <input type="text" id="projectOwner" placeholder="VD: Công ty XYZ..." value="">
+        </div>
+        <div class="input-group">
+          <label>Loại hình dự án *</label>
+          <select id="projectType" onchange="onProjectTypeChange()">
+            <option value="NX">Nhà xưởng / Factory</option>
+            <option value="CT" selected>Cao tầng / High-Rise</option>
+            <option value="TT">Thấp tầng / Low-Rise</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Quy mô (Giá trị Doanh thu DA) — Tỷ VND *</label>
+          <input type="number" id="projectValue" min="0" step="1" value="150" oninput="syncFromInput('projectValue')">
+        </div>
+        <div class="input-group">
+          <label>Tiến độ dự án (tháng) *</label>
+          <input type="number" id="projectDuration" min="1" step="1" value="18" oninput="syncFromInput('projectDuration')">
+        </div>
+        <div class="input-group">
+          <label>Miền thi công (mặc định)</label>
+          <select id="defaultRegion" onchange="syncFromInput('defaultRegion')">
+            <option value="CM">Cùng miền (CM)</option>
+            <option value="TM">Trái miền (TM)</option>
+          </select>
+        </div>
+      </div>
+      <div class="notice">* Các trường bắt buộc. Số liệu tỷ lệ % CCM sẽ tự động phân quy mô: &lt;100 tỷ | 100-250 tỷ | &gt;250 tỷ</div>
+    </div>
+
+    <!-- CCM Reference -->
+    <div class="section-box">
+      <div class="section-title">📑 Bảng tham chiếu Tỷ lệ % CCM đề xuất</div>
+      <div style="overflow-x:auto">
+        <table class="ccm-table" id="ccmTable">
+          <thead>
+            <tr>
+              <th rowspan="2">Loại hình</th>
+              <th colspan="3">Quy mô Doanh thu Dự án</th>
+            </tr>
+            <tr>
+              <th>0 &lt; DT &lt; 100 tỷ</th>
+              <th>100 ≤ DT ≤ 250 tỷ</th>
+              <th>DT &gt; 250 tỷ</th>
+            </tr>
+          </thead>
+          <tbody id="ccmTableBody">
+            <!-- rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+      <div class="notice">💡 Ô được tô đậm là tỷ lệ áp dụng cho dự án hiện tại (theo Loại hình + Quy mô đã chọn). Nhấp vào ô để tùy chỉnh.</div>
+    </div>
+
+    <!-- SCOPE & OVERLAP ADJUSTMENT -->
+    <div class="section-box" style="border:1.5px solid #fcd34d;background:linear-gradient(135deg,#fffbeb,#fef9c3)">
+      <div class="section-title" style="color:#854d0e;border-bottom-color:#fde68a">⚙️ Hiệu chỉnh % CCM cho High-Rise (Scope + Overlap)</div>
+      <div class="notice" style="margin-top:0;margin-bottom:10px;color:#92400e">
+        Khi CDT chia gói (chỉ thô / hoàn thiện / M&amp;E) và/hoặc hoàn thiện chồng chéo kết cấu, bộ máy nhân sự vẫn cần đầy đủ. Tỷ lệ % CCM cần điều chỉnh để phản ánh thực tế.
+      </div>
+
+      <div class="input-grid">
+        <div class="input-group">
+          <label>🎯 Kịch bản nhanh (chọn để tự động áp hệ số)</label>
+          <select id="scenarioPreset" onchange="applyScenarioPreset()">
+            <option value="custom">— Tùy chỉnh —</option>
+            <option value="base">Chuẩn: Tổng thầu, không chồng chéo (×1.00)</option>
+            <option value="easy">Dễ: Tổng thầu + chồng chéo nhẹ (×1.08)</option>
+            <option value="medium" selected>Phổ biến: Chia gói + chồng chéo TB (×1.18)</option>
+            <option value="hard">Khó: Chỉ thô + chồng chéo cao (×1.32)</option>
+            <option value="finish">Rất khó: Chỉ hoàn thiện + overlap cao (×1.45)</option>
+            <option value="me">M&amp;E riêng + overlap cao (×1.55)</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>📦 Phạm vi công việc (Scope)</label>
+          <select id="scopeType" onchange="onScopeOverlapChange()">
+            <option value="full" data-coef="1.00">Tổng thầu — Thô + Hoàn thiện + M&amp;E (×1.00)</option>
+            <option value="th_ht" data-coef="1.12">Thô + Hoàn thiện (không M&amp;E) (×1.12)</option>
+            <option value="tho" data-coef="1.20" selected>Chỉ Thô — Kết cấu + Xây tô (×1.20)</option>
+            <option value="ht" data-coef="1.28">Chỉ Hoàn thiện (×1.28)</option>
+            <option value="me" data-coef="1.32">Chỉ M&amp;E (×1.32)</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>🔄 Mức chồng chéo Hoàn thiện-Kết cấu (Overlap)</label>
+          <select id="overlapLevel" onchange="onScopeOverlapChange()">
+            <option value="none" data-coef="1.00">Không chồng chéo — Tuần tự (×1.00)</option>
+            <option value="light" data-coef="1.08">Chồng chéo nhẹ — 10-30% (×1.08)</option>
+            <option value="medium" data-coef="1.14" selected>Trung bình — 30-50% (×1.14)</option>
+            <option value="high" data-coef="1.24">Cao — &gt;50%, siêu cao tầng (×1.24)</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>✏️ Hệ số tổng (có thể chỉnh tay)</label>
+          <input type="number" id="totalCoef" min="0.5" max="3" step="0.01" value="1.18" oninput="onTotalCoefChange()">
+        </div>
+      </div>
+
+      <!-- Result preview -->
+      <div id="adjustedRatePreview" style="margin-top:12px;padding:12px 14px;background:#fff;border-radius:10px;border:2px dashed #f59e0b">
+        <!-- Filled by JS -->
+      </div>
+
+      <div class="notice" style="margin-top:8px;color:#92400e">
+        💡 Hệ số chỉ áp dụng cho <b>High-Rise (cao tầng)</b>. Khi chọn "Kịch bản nhanh" thì Scope + Overlap sẽ tự cập nhật; bạn vẫn có thể tinh chỉnh từng dropdown hoặc nhập trực tiếp ô "Hệ số tổng".
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-success" onclick="loadDefaultStaff()">🔄 Áp dụng Cơ cấu Nhân sự Đề xuất</button>
+      <button class="btn btn-primary" onclick="switchTab('staff')">➡️ Tiếp tục: Nhập Cơ cấu Nhân sự</button>
+    </div>
+
+  </div>
+
+  <!-- ============== TAB 2: STAFF STRUCTURE ============== -->
+  <div class="tab-panel" id="tab-staff">
+
+    <div class="summary-grid" id="quickStatsTop"></div>
+
+    <div class="section-box">
+      <div class="section-title">👥 Cơ cấu Nhân sự dự án (Nhập số lượng + số tháng có mặt)</div>
+      <div class="action-bar" style="margin-bottom:8px">
+        <button class="btn btn-success" onclick="loadDefaultStaff()">🔄 Tải Đề xuất theo Quy mô</button>
+        <button class="btn btn-secondary" onclick="clearAllQty()">🗑️ Xóa toàn bộ Số lượng</button>
+        <button class="btn btn-primary" onclick="setAllMonthsToDuration()">⏱️ Đặt Số tháng = Tiến độ DA</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40px">STT</th>
+              <th>Code</th>
+              <th>Đối tượng (Chức danh)</th>
+              <th class="tc">Nhóm</th>
+              <th class="tc">Miền</th>
+              <th class="num-r">Lương cứng/tháng</th>
+              <th class="num-r">Phúc lợi/tháng</th>
+              <th class="num-r">Tổng cộng/tháng</th>
+              <th class="tc">Số lượng</th>
+              <th class="tc">Số tháng</th>
+              <th class="num-r">Thành tiền (VND)</th>
+            </tr>
+          </thead>
+          <tbody id="staffTableBody"></tbody>
+          <tfoot id="staffTableFoot"></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-primary" onclick="switchTab('summary')">➡️ Xem Tổng hợp &amp; So sánh % CCM</button>
+    </div>
+  </div>
+
+  <!-- ============== TAB: QUICK CALCULATOR (Tính phổ thông) ============== -->
+  <div class="tab-panel" id="tab-quick">
+
+    <div class="section-box" style="border:1.5px solid #6ee7b7;background:linear-gradient(135deg,#ecfdf5,#d1fae5)">
+      <div class="section-title" style="color:#065f46;border-bottom-color:#a7f3d0">⚡ Tính Phổ Thông — Theo Báo cáo Định biên 2026</div>
+      <div class="notice" style="color:#064e3b;margin-top:0;margin-bottom:12px;line-height:1.7">
+        Tính nhanh dựa trên <b>4 tham số cốt lõi</b> + Quy tắc tỷ lệ tổ chức + Hệ số biến động thời gian.<br>
+        Dữ liệu chuẩn từ <b>12 dự án thực tế 2026</b> (tổng 4.985 tỷ VND, TB 38.2 tr/người/tháng, 3.60% QL/GTT).
+      </div>
+
+      <div class="input-grid">
+        <div class="input-group">
+          <label>🏗️ Loại hình (auto-load tham số chuẩn)</label>
+          <select id="qcType" onchange="onQuickTypeChange()">
+            <option value="NX">Nhà xưởng / Factory (R=2.60%, L=36.0 tr)</option>
+            <option value="CT" selected>Cao tầng / High-Rise (R=3.50%, L=40.3 tr)</option>
+            <option value="TT">Thấp tầng / Low-Rise (R=3.00%, L=38.5 tr)</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>💰 GTT — Giá trị gói thầu (tỷ VND)</label>
+          <input type="number" id="qcGTT" min="0" step="1" value="150" oninput="syncFromInput('qcGTT')">
+        </div>
+
+        <div class="input-group">
+          <label>📅 T — Tiến độ thi công (tháng)</label>
+          <input type="number" id="qcT" min="1" step="0.5" value="18" oninput="syncFromInput('qcT')">
+        </div>
+
+        <div class="input-group">
+          <label>💵 L — Lương TB (triệu VND/người/tháng)</label>
+          <input type="number" id="qcL" min="0" step="0.5" value="40.3" oninput="syncFromInput('qcL')">
+        </div>
+
+        <div class="input-group">
+          <label>📊 R — Tỷ lệ % QL/GTT</label>
+          <input type="number" id="qcR" min="0" max="20" step="0.01" value="3.50" oninput="syncFromInput('qcR')">
+        </div>
+
+        <div class="input-group">
+          <label>👥 N — Số nhân sự (auto-tính, hoặc nhập override)</label>
+          <input type="number" id="qcN" min="0" step="1" value="" placeholder="Để trống = auto" oninput="syncFromInput('qcN')">
+        </div>
+      </div>
+
+      <div class="action-bar" style="margin-top:8px">
+        <button class="btn btn-success" onclick="reloadQuickDefaults()">🔄 Tải lại Tham số chuẩn theo Loại hình</button>
+        <button class="btn btn-secondary" onclick="qcAutoN()">🤖 Tự tính N từ QL/L/T</button>
+      </div>
+    </div>
+
+    <!-- TIME VARIATION COEFFICIENT -->
+    <div class="section-box" style="border:1.5px solid #fb923c;background:linear-gradient(135deg,#fff7ed,#fed7aa)">
+      <div class="section-title" style="color:#9a3412;border-bottom-color:#fed7aa">⏱️ Hệ số Biến động Thời gian (Tiến độ thay đổi)</div>
+      <div class="notice" style="margin-top:0;margin-bottom:10px;color:#7c2d12">
+        Khi tiến độ thi công <b>kéo dài</b> hoặc <b>rút ngắn</b> so với tiến độ chuẩn, nhân sự không thay đổi tuyến tính (do bộ máy quản lý cố định).
+      </div>
+
+      <div class="input-grid">
+        <div class="input-group">
+          <label>📊 Kịch bản biến động tiến độ</label>
+          <select id="qcTimeScenario" onchange="applyTimeScenario()">
+            <option value="normal" selected>Chuẩn (T = tiến độ kế hoạch) — ×1.00</option>
+            <option value="extend10">Kéo dài 10% (delay nhẹ) — ×1.05</option>
+            <option value="extend25">Kéo dài 25% (delay vừa) — ×1.12</option>
+            <option value="extend50">Kéo dài 50% (delay nặng) — ×1.22</option>
+            <option value="crash10">Rút 10% (tăng tốc nhẹ) — ×1.08</option>
+            <option value="crash25">Rút 25% (fast-track) — ×1.20</option>
+            <option value="crash40">Rút 40% (crash schedule) — ×1.35</option>
+            <option value="custom">Tùy chỉnh hệ số</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>✏️ Hệ số biến động (custom)</label>
+          <input type="number" id="qcTimeCoef" min="0.5" max="3" step="0.01" value="1.00" oninput="onTimeCoefChange()">
+        </div>
+      </div>
+
+      <div class="notice" style="margin-top:10px;color:#7c2d12;line-height:1.7">
+        <b>📌 Cơ sở hệ số:</b><br>
+        • <b>Kéo dài</b>: Bộ máy QL phải duy trì lâu hơn → chi phí cố định tăng. Hệ số = √(T_thực / T_chuẩn) hoặc tra bảng.<br>
+        • <b>Rút ngắn</b>: Cần tăng ca, tăng GS, thêm tổ song song → "Brooks's Law" — chi phí tăng phi tuyến.<br>
+        • <b>Công thức</b>: QL_điều_chỉnh = QL_chuẩn × Hệ số biến động thời gian.
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="section-box">
+      <div class="section-title">📊 Kết quả Tính Phổ Thông</div>
+      <div id="qcResults"></div>
+    </div>
+
+    <!-- FORMULAS REFERENCE -->
+    <div class="section-box" style="background:#f8fafc;border:1.5px solid #cbd5e1">
+      <div class="section-title" style="color:#334155;border-bottom-color:#cbd5e1">📐 5 Công thức Cốt lõi (Báo cáo Định biên 2026)</div>
+      <div style="font-size:13px;line-height:2;color:#1e293b;font-family:Georgia,serif">
+        <b>[1] Quỹ lương định biên:</b>&nbsp; <span style="background:#fef3c7;padding:2px 8px;border-radius:4px"><b>QL = GTT × R</b></span> &nbsp;<i style="color:#64748b">(R = Tỷ lệ % định biên)</i><br>
+        <b>[2] Số nhân sự huy động:</b>&nbsp; <span style="background:#fef3c7;padding:2px 8px;border-radius:4px"><b>N = QL ÷ (L × T)</b></span><br>
+        <b>[3] Mức lương TB:</b>&nbsp; <span style="background:#fef3c7;padding:2px 8px;border-radius:4px"><b>L = QL ÷ (N × T)</b></span><br>
+        <b>[4] Năng suất lao động:</b>&nbsp; <span style="background:#fef3c7;padding:2px 8px;border-radius:4px"><b>NSLĐ = GTT ÷ N</b></span> &nbsp;<i style="color:#64748b">(tỷ/người/năm — chuẩn 15 tỷ/người/năm)</i><br>
+        <b>[5] Hồi quy nhanh:</b>&nbsp; <span style="background:#fef3c7;padding:2px 8px;border-radius:4px"><b>N ≈ 0.034 × GTT + 16.96</b></span> &nbsp;<i style="color:#64748b">(R² ≈ 0.6)</i>
+      </div>
+    </div>
+
+    <!-- RULE OF THUMB / TỶ LỆ NHANH -->
+    <div class="section-box">
+      <div class="section-title">📋 Quy tắc Tỷ lệ Nhanh (theo loại hình)</div>
+      <div id="qcRuleTable"></div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-primary" onclick="applyQuickToStaff()">✨ Áp dụng vào Cơ cấu Nhân sự (theo 1:N:M)</button>
+      <button class="btn btn-purple" onclick="exportQuickCSV()">📥 Xuất CSV kết quả Phổ thông</button>
+    </div>
+
+  </div>
+
+  <!-- ============== TAB: AUTO ALLOCATION ============== -->
+  <div class="tab-panel" id="tab-auto">
+
+    <div class="section-box" style="border:1.5px solid #93c5fd;background:linear-gradient(135deg,#eff6ff,#dbeafe)">
+      <div class="section-title" style="color:#1e40af;border-bottom-color:#bfdbfe">🎯 Tự phân bổ Nhân sự theo Quy tắc Tỷ lệ</div>
+      <div class="notice" style="color:#1e3a8a;margin-top:0;margin-bottom:12px;line-height:1.7">
+        Hệ thống đề xuất số người cho 3 ngạch (QL : CV : NV) dựa trên tỷ lệ Span of Control và quy mô dự án.<br>
+        <b style="color:#5b21b6">🟣 QLCC — Quản lý Cấp cao:</b> Giám đốc khối (GDK), Giám đốc dự án (GDDA)<br>
+        <b style="color:#166534">🟢 QL — Quản lý Công trường:</b> Chỉ huy trưởng (CHT)<br>
+        <b style="color:#854d0e">🟡 CV — Chuyên viên:</b> Chỉ huy phó (CHP), Giám sát chính (GSC), GS thi công cấp 1 (GS1), GS An toàn cấp 1 (GSAT1)<br>
+        <b style="color:#6b21a8">🔵 NV — Nhân viên:</b> GS thi công cấp 2 (GS2), GS An toàn cấp 2 (GSAT2), Thư ký (TKY), Thủ kho (TKHO)
+      </div>
+
+      <div class="input-grid">
+        <div class="input-group">
+          <label>📐 Quy tắc tỷ lệ Span of Control</label>
+          <select id="spanRule" onchange="updateAutoAllocation()">
+            <option value="1:4:5">1:4:5 — Agile/PMBOK 7 (QL tích cực, GS chuyên sâu)</option>
+            <option value="1:3:6" selected>1:3:6 — Traditional/Waterfall (nặng thi hành)</option>
+            <option value="1:2:7">1:2:7 — Heavy-execution (siêu DA, ít chuyên viên)</option>
+            <option value="1:5:4">1:5:4 — Quality-focused (nhiều CV kiểm soát)</option>
+            <option value="custom">Tùy chỉnh thủ công</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>👥 Tổng số nhân sự dự án (người)</label>
+          <input type="number" id="totalStaffCount" min="5" max="200" step="1" value="20" oninput="updateAutoAllocation()">
+        </div>
+
+        <div class="input-group">
+          <label>🔢 Tỷ lệ QL (tùy chỉnh)</label>
+          <input type="number" id="ratioQL" min="0" step="1" value="1" oninput="onCustomRatioChange()">
+        </div>
+        <div class="input-group">
+          <label>🔢 Tỷ lệ CV (tùy chỉnh)</label>
+          <input type="number" id="ratioCV" min="0" step="1" value="3" oninput="onCustomRatioChange()">
+        </div>
+        <div class="input-group">
+          <label>🔢 Tỷ lệ NV (tùy chỉnh)</label>
+          <input type="number" id="ratioNV" min="0" step="1" value="6" oninput="onCustomRatioChange()">
+        </div>
+      </div>
+
+      <!-- Allocation preview -->
+      <div id="allocationPreview" style="margin-top:12px;padding:14px;background:#fff;border-radius:10px;border:2px dashed #3b82f6"></div>
+
+      <div class="action-bar" style="margin-top:14px">
+        <button class="btn btn-primary" onclick="applyAutoAllocation()" style="font-size:13px;padding:10px 20px">✨ Áp dụng vào Cơ cấu Nhân sự</button>
+        <button class="btn btn-secondary" onclick="suggestStaffCount()">💡 Gợi ý Tổng số NS theo Quy mô</button>
+      </div>
+    </div>
+
+    <!-- Cách ước tính - Ghi chú minh bạch -->
+    <div class="section-box" style="background:#fffbeb;border:1.5px solid #fde68a">
+      <div class="section-title" style="color:#854d0e;border-bottom-color:#fde68a">📝 Cách ước tính Quỹ lương trong tab này</div>
+      <div style="font-size:12px;line-height:1.8;color:#78350f">
+        <b>1. Phân bổ theo tỷ lệ:</b> Tổng nhân sự × (Tỷ lệ ngạch / Tổng tỷ lệ) → làm tròn để có số người mỗi ngạch.<br>
+        <b>2. Đảm bảo vị trí bắt buộc:</b> Mỗi ngạch luôn có tối thiểu 1 người ở vị trí <i>BẮT BUỘC</i> (CHT, GSAT cấp 1) — yêu cầu pháp lý ngành XD.<br>
+        <b>3. Cấp vị trí theo quy mô DA:</b><br>
+        &nbsp;&nbsp;&nbsp;• &lt; 100 tỷ → cấp 3 (thấp nhất)<br>
+        &nbsp;&nbsp;&nbsp;• 100-250 tỷ → cấp 2 (trung bình)<br>
+        &nbsp;&nbsp;&nbsp;• &gt; 250 tỷ → cấp 1 (cao nhất)<br>
+        <b>4. Miền thi công:</b> Lấy từ "Miền chính" ở tab Thông tin Dự án (CM/TM ảnh hưởng mức lương).<br>
+        <b>5. Số tháng có mặt mặc định:</b><br>
+        &nbsp;&nbsp;&nbsp;• CHT, CHP, GSC, GS, GSAT, TKY, TKHO: 100% tiến độ (full-time)<br>
+        &nbsp;&nbsp;&nbsp;• GDDA: 30% tiến độ (part-time, phụ trách nhiều DA)<br>
+        <b>6. Quỹ lương = </b> Σ (Số người × (Lương cứng + Phúc lợi) × Số tháng)<br>
+        <b>7. Lương TB trong preview:</b> Lương các vị trí cùng ngạch ở cấp tương ứng quy mô được lấy trung bình cộng đơn giản.<br>
+        <b>⚠️ Lưu ý:</b> Số tháng GDDA = 30% tiến độ là <i>ước tính nhanh</i>. Bạn có thể điều chỉnh trong tab Cơ cấu Nhân sự sau khi áp dụng.
+      </div>
+    </div>
+
+    <!-- Distribution detail by ngach -->
+    <div class="section-box">
+      <div class="section-title">📊 Chi tiết Phân bổ vào 3 Ngạch (QL / CV / NV)</div>
+      <div class="notice" style="margin-top:0;margin-bottom:10px">
+        Sau khi xác định tổng số người cho mỗi ngạch, hệ thống phân tiếp xuống các chức danh cụ thể theo độ ưu tiên & quy mô.
+      </div>
+      <div id="ngachDetailBox"></div>
+    </div>
+
+    <!-- Comparison table: 1:4:5 vs 1:3:6 -->
+    <div class="section-box">
+      <div class="section-title">⚖️ So sánh các Quy tắc Phân bổ (cùng tổng nhân sự)</div>
+      <div id="ruleCompareBox"></div>
+    </div>
+
+  </div>
+
+  <!-- ============== TAB: PMBOK / ISO 21502 ============== -->
+  <div class="tab-panel" id="tab-pmbok">
+
+    <!-- PMBOK Methodology selector -->
+    <div class="section-box" style="border:1.5px solid #c4b5fd;background:linear-gradient(135deg,#f5f3ff,#ede9fe)">
+      <div class="section-title" style="color:#6b21a8;border-bottom-color:#ddd6fe">📐 Mô hình Quản lý Dự án (PMBOK + ISO 21502)</div>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>📚 Phương pháp Quản lý</label>
+          <select id="pmMethod" onchange="renderPMBOK()">
+            <option value="predictive" selected>Predictive — Truyền thống (PMBOK 6th, Waterfall)</option>
+            <option value="agile">Agile — Linh hoạt (PMBOK 7th, Scrum)</option>
+            <option value="hybrid">Hybrid — Kết hợp (phổ biến cho XD)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>📋 Tiêu chuẩn áp dụng</label>
+          <select id="pmStandard" onchange="renderPMBOK()">
+            <option value="pmbok6">PMBOK 6th Edition — 5 Process Groups, 10 KA</option>
+            <option value="pmbok7">PMBOK 7th Edition — 12 Principles, 8 Performance Domains</option>
+            <option value="iso21502" selected>ISO 21502:2020 — Project Management Guidance</option>
+            <option value="combined">Kết hợp PMBOK + ISO 21502</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ISO 21502 Role Mapping -->
+    <div class="section-box">
+      <div class="section-title">🎭 Phân vai theo ISO 21502:2020</div>
+      <div id="iso21502Box"></div>
+    </div>
+
+    <!-- PMBOK Process Groups distribution -->
+    <div class="section-box">
+      <div class="section-title">⏱️ PMBOK 5 Process Groups — Phân bổ Nhân sự theo Giai đoạn</div>
+      <div class="notice" style="margin-top:0;margin-bottom:10px">
+        Mỗi giai đoạn có cường độ nhân sự khác nhau. Mặc định theo PMBOK: Executing chiếm peak ~65-70% tiến độ.
+      </div>
+      <div id="processGroupsBox"></div>
+    </div>
+
+    <!-- PMBOK 10 Knowledge Areas → RACI -->
+    <div class="section-box">
+      <div class="section-title">🧩 PMBOK 10 Knowledge Areas — RACI Map</div>
+      <div class="notice" style="margin-top:0;margin-bottom:10px">
+        R = Responsible (Thực hiện) | A = Accountable (Chịu trách nhiệm) | C = Consulted (Tham vấn) | I = Informed (Được báo)
+      </div>
+      <div id="raciBox"></div>
+    </div>
+
+  </div>
+
+  <!-- ============== TAB 3: SUMMARY ============== -->
+  <div class="tab-panel" id="tab-summary">
+
+    <div id="summaryAlert"></div>
+
+    <div class="summary-grid" id="summaryCards"></div>
+
+    <div class="section-box">
+      <div class="section-title">📌 Thông tin Dự án</div>
+      <div id="projectInfo"></div>
+    </div>
+
+    <div class="section-box">
+      <div class="section-title">⚖️ So sánh Quỹ lương Thực tế vs Tỷ lệ CCM đề xuất</div>
+      <div id="comparisonBox"></div>
+    </div>
+
+    <div class="section-box">
+      <div class="section-title">📊 Phân bổ Quỹ lương theo Ngạch</div>
+      <div id="distributionBox"></div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-purple" onclick="exportToCSV()">📥 Xuất CSV (Excel)</button>
+      <button class="btn btn-primary" onclick="window.print()">🖨️ In Báo cáo</button>
+      <button class="btn btn-secondary" onclick="switchTab('report')">➡️ Báo cáo Chi tiết</button>
+    </div>
+
+  </div>
+
+  <!-- ============== TAB 4: DETAILED REPORT ============== -->
+  <div class="tab-panel" id="tab-report">
+
+    <div class="section-box">
+      <div class="section-title">📈 Báo cáo Chi tiết Chi phí Nhân sự</div>
+      <div id="detailedReport"></div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-purple" onclick="exportToCSV()">📥 Xuất CSV</button>
+      <button class="btn btn-primary" onclick="window.print()">🖨️ In Báo cáo</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <strong>Hướng dẫn sử dụng:</strong><br>
+    1. Nhập <b>Thông tin Dự án</b>: Loại hình, Quy mô (giá trị DA), Tiến độ.<br>
+    2. Kiểm tra Bảng tham chiếu <b>% CCM đề xuất</b> (có thể chỉnh trực tiếp).<br>
+    3. <b>Hiệu chỉnh cho High-Rise</b>: Chọn Kịch bản nhanh hoặc chọn riêng Scope + Overlap, hoặc nhập tay Hệ số tổng.<br>
+    4. Sang tab <b>Cơ cấu Nhân sự</b>: Tải đề xuất mặc định, sau đó tinh chỉnh Số lượng và Số tháng cho từng chức danh.<br>
+    5. Xem <b>Tổng hợp &amp; So sánh</b> để biết Quỹ lương thực tế có đạt mục tiêu % CCM (đã hiệu chỉnh) hay không.<br>
+    <em style="display:block;margin-top:4px;color:#aaa">
+      Công thức: Quỹ lương = Σ(Số lượng × (Lương cứng + Phúc lợi) × Số tháng). 
+      % CCM Hiệu chỉnh = % CCM Gốc × Hệ số Scope × Hệ số Overlap (chỉ DD).
+      % Thực tế = Quỹ lương / Giá trị Dự án.
+    </em>
+  </div>
+
+</div>
+
+<script>
+// ===== DATA: 34 chức danh =====
+const STAFF_DATA = [
+  {stt:1,  code:'GDK1',   title:'GIÁM ĐỐC KHỐI (cấp 1)',  ngach:'QL01', region:'',   hard:104530000, welfare:20629167},
+  {stt:2,  code:'GDK2',   title:'GIÁM ĐỐC KHỐI (cấp 2)',  ngach:'QL02', region:'',   hard:89380000,  welfare:17504167},
+  {stt:3,  code:'GDK3',   title:'GIÁM ĐỐC KHỐI (cấp 3)',  ngach:'QL03', region:'',   hard:69787000,  welfare:13483333},
+  {stt:4,  code:'GDDA1',  title:'GIÁM ĐỐC DỰ ÁN (cấp 1)', ngach:'QL02', region:'',   hard:104530000, welfare:20629167},
+  {stt:5,  code:'GDDA2',  title:'GIÁM ĐỐC DỰ ÁN (cấp 2)', ngach:'QL03', region:'',   hard:89280000,  welfare:17504167},
+  {stt:6,  code:'GDDA3',  title:'GIÁM ĐỐC DỰ ÁN (cấp 3)', ngach:'QL04', region:'',   hard:65724500,  welfare:12391667},
+  {stt:7,  code:'CHT1CM', title:'CHỈ HUY TRƯỞNG (cấp 1)', ngach:'QL03', region:'CM', hard:59740000,  welfare:12087500},
+  {stt:8,  code:'CHT1TM', title:'CHỈ HUY TRƯỞNG (cấp 1)', ngach:'QL03', region:'TM', hard:64740000,  welfare:12087500},
+  {stt:9,  code:'CHT2CM', title:'CHỈ HUY TRƯỞNG (cấp 2)', ngach:'QL04', region:'CM', hard:55294000,  welfare:11079167},
+  {stt:10, code:'CHT2TM', title:'CHỈ HUY TRƯỞNG (cấp 2)', ngach:'QL04', region:'TM', hard:60294000,  welfare:11079167},
+  {stt:11, code:'CHT3CM', title:'CHỈ HUY TRƯỞNG (cấp 3)', ngach:'QL05', region:'CM', hard:50848000,  welfare:10329167},
+  {stt:12, code:'CHT3TM', title:'CHỈ HUY TRƯỞNG (cấp 3)', ngach:'QL05', region:'TM', hard:55848000,  welfare:10329167},
+  {stt:13, code:'CHP1CM', title:'CHỈ HUY PHÓ (Cấp 1)',    ngach:'QL05', region:'CM', hard:45537500,  welfare:9433333},
+  {stt:14, code:'CHP1TM', title:'CHỈ HUY PHÓ (Cấp 1)',    ngach:'QL05', region:'TM', hard:50537500,  welfare:9433333},
+  {stt:15, code:'CHP2CM', title:'CHỈ HUY PHÓ (Cấp 2)',    ngach:'QL06', region:'CM', hard:44420000,  welfare:8770833},
+  {stt:16, code:'CHP2TM', title:'CHỈ HUY PHÓ (Cấp 2)',    ngach:'QL06', region:'TM', hard:48720000,  welfare:8770833},
+  {stt:17, code:'CHP3CM', title:'CHỈ HUY PHÓ (Cấp 3)',    ngach:'QL07', region:'CM', hard:41456000,  welfare:8270833},
+  {stt:18, code:'CHP3TM', title:'CHỈ HUY PHÓ (Cấp 3)',    ngach:'QL07', region:'TM', hard:45756000,  welfare:8270833},
+  {stt:19, code:'GSC1CM', title:'GIÁM SÁT CHÍNH (cấp 1)', ngach:'CV01', region:'CM', hard:34069500,  welfare:7016667},
+  {stt:20, code:'GSC1TM', title:'GIÁM SÁT CHÍNH (cấp 1)', ngach:'CV01', region:'TM', hard:38369500,  welfare:7016667},
+  {stt:21, code:'GSC2CM', title:'GIÁM SÁT CHÍNH (cấp 2)', ngach:'CV02', region:'CM', hard:29870500,  welfare:6308333},
+  {stt:22, code:'GSC2TM', title:'GIÁM SÁT CHÍNH (cấp 2)', ngach:'CV02', region:'TM', hard:34170500,  welfare:6308333},
+  {stt:23, code:'GS1CM',  title:'GIÁM SÁT THI CÔNG (cấp 1)', ngach:'NV01', region:'CM', hard:25818500, welfare:5641667},
+  {stt:24, code:'GS1TM',  title:'GIÁM SÁT THI CÔNG (cấp 1)', ngach:'NV01', region:'TM', hard:30118500, welfare:5641667},
+  {stt:25, code:'GS2CM',  title:'GIÁM SÁT THI CÔNG (Cấp 2)', ngach:'NV02', region:'CM', hard:20384500, welfare:4725000},
+  {stt:26, code:'GS2TM',  title:'GIÁM SÁT THI CÔNG (Cấp 2)', ngach:'NV02', region:'TM', hard:24684500, welfare:4725000},
+  {stt:27, code:'GSAT1CM',title:'GSAT (Cấp 1)',           ngach:'QL07', region:'CM', hard:34293500,  welfare:7062500},
+  {stt:28, code:'GSAT1TM',title:'GSAT (Cấp 1)',           ngach:'QL07', region:'TM', hard:38593000,  welfare:7062500},
+  {stt:29, code:'GSAT2CM',title:'GSAT (Cấp 2)',           ngach:'CV01', region:'CM', hard:29376500,  welfare:6225000},
+  {stt:30, code:'GSAT2TM',title:'GSAT (Cấp 2)',           ngach:'CV01', region:'TM', hard:33676500,  welfare:6225000},
+  {stt:31, code:'TKYCM',  title:'THƯ KÝ',                  ngach:'NV01', region:'CM', hard:20755000,  welfare:4787500},
+  {stt:32, code:'TKYTM',  title:'THƯ KÝ',                  ngach:'NV01', region:'TM', hard:25055000,  welfare:4787500},
+  {stt:33, code:'TKHOCM', title:'THỦ KHO',                 ngach:'NV04', region:'CM', hard:19755000,  welfare:4787500},
+  {stt:34, code:'TKHOTM', title:'THỦ KHO',                 ngach:'NV04', region:'TM', hard:20555000,  welfare:4787500},
+];
+
+// ============================================================
+// ===== CENTRAL STATE — Nguồn sự thật duy nhất cho toàn app =====
+// ============================================================
+const APP_STATE = {
+  // Tab 1 — Thông tin Dự án
+  projectName:    '',
+  projectOwner:   '',
+  projectType:    'CT',     // NX / CT / TT
+  projectValue:   150,      // tỷ VND (GTT)
+  duration:       18,       // tháng
+  region:         'CM',     // CM / TM
+  // Tab Quick (⚡)
+  qcL:    40.3,             // triệu VND/NS/tháng
+  qcR:    3.50,             // % tỷ lệ định biên
+  qcN:    null,             // null = auto
+  timeCoef: 1.00,           // hệ số biến động thời gian
+  // Tab Auto (🎯)
+  spanRule:       '1:3:6',
+  totalStaff:     20,
+};
+
+// Đọc state vào UI
+function stateToUI(){
+  safeSet('projectName',     APP_STATE.projectName);
+  safeSet('projectOwner',    APP_STATE.projectOwner);
+  safeSetSel('projectType',  APP_STATE.projectType);
+  safeSet('projectValue',    APP_STATE.projectValue);
+  safeSet('projectDuration', APP_STATE.duration);
+  safeSetSel('defaultRegion',APP_STATE.region);
+  // Quick tab
+  safeSetSel('qcType',       APP_STATE.projectType);
+  safeSet('qcGTT',           APP_STATE.projectValue);
+  safeSet('qcT',             APP_STATE.duration);
+  safeSet('qcL',             APP_STATE.qcL);
+  safeSet('qcR',             APP_STATE.qcR);
+  safeSet('qcN',             APP_STATE.qcN || '');
+  safeSet('qcTimeCoef',      APP_STATE.timeCoef);
+  // Auto tab
+  safeSetSel('spanRule',     APP_STATE.spanRule);
+  safeSet('totalStaffCount', APP_STATE.totalStaff);
+}
+
+function safeSet(id, val){
+  const el = document.getElementById(id);
+  if (el && document.activeElement !== el) el.value = val;
+}
+function safeSetSel(id, val){
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
+// Đọc UI vào state — gọi trước khi dùng APP_STATE
+function uiToState(){
+  APP_STATE.projectName    = document.getElementById('projectName')?.value || '';
+  APP_STATE.projectOwner   = document.getElementById('projectOwner')?.value || '';
+  APP_STATE.projectType    = document.getElementById('projectType')?.value || 'CT';
+  APP_STATE.projectValue   = parseFloat(document.getElementById('projectValue')?.value) || 0;
+  APP_STATE.duration       = parseFloat(document.getElementById('projectDuration')?.value) || 0;
+  APP_STATE.region         = document.getElementById('defaultRegion')?.value || 'CM';
+  // Quick
+  const qcType = document.getElementById('qcType')?.value;
+  if (qcType) APP_STATE.projectType = qcType;  // quick overrides
+  const qcGTT = parseFloat(document.getElementById('qcGTT')?.value);
+  if (!isNaN(qcGTT)) APP_STATE.projectValue = qcGTT;
+  const qcT = parseFloat(document.getElementById('qcT')?.value);
+  if (!isNaN(qcT)) APP_STATE.duration = qcT;
+  APP_STATE.qcL      = parseFloat(document.getElementById('qcL')?.value) || 0;
+  APP_STATE.qcR      = parseFloat(document.getElementById('qcR')?.value) || 0;
+  APP_STATE.qcN      = parseInt(document.getElementById('qcN')?.value) || null;
+  APP_STATE.timeCoef = parseFloat(document.getElementById('qcTimeCoef')?.value) || 1;
+  // Auto
+  APP_STATE.spanRule   = document.getElementById('spanRule')?.value || '1:3:6';
+  APP_STATE.totalStaff = parseInt(document.getElementById('totalStaffCount')?.value) || 0;
+}
+
+// ============================================================
+// ===== CCM REFERENCE TABLE — Theo ảnh bảng đề xuất =====
+// 3 nhóm: NX (Nhà xưởng), CT (Cao tầng), TT (Thấp tầng)
+// 3 quy mô: small (<100 tỷ) / medium (100-250 tỷ) / large (>250 tỷ)
+// ============================================================
+const CCM_RATES = {
+  NX: { small: 3.00, medium: 2.60, large: 2.30 }, // Nhà xưởng (factory)
+  CT: { small: 3.80, medium: 3.50, large: 3.20 }, // Cao tầng (high-rise)
+  TT: { small: 3.50, medium: 3.00, large: 2.70 }, // Thấp tầng (low-rise)
+};
+
+const TYPE_LABELS = {
+  NX: 'Nhà xưởng / Factory',
+  CT: 'Cao tầng / High-Rise',
+  TT: 'Thấp tầng / Low-Rise',
+};
+
+// Lương TB (triệu VND/người/tháng) — Báo cáo Định biên 2026
+const AVG_SALARY_BY_TYPE = { NX: 36.0, CT: 40.3, TT: 38.5 };
+
+// NS/100 tỷ GTT
+const STAFF_PER_100B = { NX: 31.5, CT: 39.3, TT: 26.0 };
+
+// Tham số chuẩn cho tab Tính Phổ Thông
+const QC_DEFAULTS = {
+  NX: { R: 2.60, L: 36.0, nPer100B: 31.5, label: 'Nhà xưởng' },
+  CT: { R: 3.50, L: 40.3, nPer100B: 39.3, label: 'Cao tầng' },
+  TT: { R: 3.00, L: 38.5, nPer100B: 26.0, label: 'Thấp tầng' },
+};
+
+// ===== STATE =====
+// Mỗi vị trí có { qty, months }
+let staffState = {};
+STAFF_DATA.forEach(s => { staffState[s.code] = { qty: 0, months: 0 }; });
+
+// ===== DEFAULT STAFF SUGGESTIONS (theo quy mô) =====
+// Số lượng + % thời gian có mặt (so với tổng tiến độ)
+// 'pos' là code dùng cho region không có (QL chung), với CM/TM thì sẽ tự chọn theo defaultRegion
+function getDefaultStaffSuggestion(sizeBucket) {
+  // sizeBucket: 'small' (<100), 'medium' (100-250), 'large' (>250)
+  // qty: số người; mPct: % thời gian có mặt (1.0 = toàn dự án)
+  const presets = {
+    small: [
+      {code:'GDDA3', qty:1, mPct:0.30},
+      {code:'CHT3',  qty:1, mPct:1.00},
+      {code:'CHP3',  qty:1, mPct:1.00},
+      {code:'GSC2',  qty:1, mPct:1.00},
+      {code:'GS2',   qty:2, mPct:1.00},
+      {code:'GSAT2', qty:1, mPct:1.00},
+      {code:'TKY',   qty:1, mPct:1.00},
+      {code:'TKHO',  qty:1, mPct:1.00},
+    ],
+    medium: [
+      {code:'GDDA2', qty:1, mPct:0.30},
+      {code:'CHT2',  qty:1, mPct:1.00},
+      {code:'CHP2',  qty:2, mPct:1.00},
+      {code:'GSC2',  qty:1, mPct:1.00},
+      {code:'GS1',   qty:2, mPct:1.00},
+      {code:'GS2',   qty:3, mPct:1.00},
+      {code:'GSAT1', qty:1, mPct:1.00},
+      {code:'TKY',   qty:1, mPct:1.00},
+      {code:'TKHO',  qty:1, mPct:1.00},
+    ],
+    large: [
+      {code:'GDDA1', qty:1, mPct:0.40},
+      {code:'CHT1',  qty:1, mPct:1.00},
+      {code:'CHP1',  qty:2, mPct:1.00},
+      {code:'CHP2',  qty:2, mPct:1.00},
+      {code:'GSC1',  qty:1, mPct:1.00},
+      {code:'GSC2',  qty:2, mPct:1.00},
+      {code:'GS1',   qty:3, mPct:1.00},
+      {code:'GS2',   qty:4, mPct:1.00},
+      {code:'GSAT1', qty:1, mPct:1.00},
+      {code:'GSAT2', qty:1, mPct:1.00},
+      {code:'TKY',   qty:2, mPct:1.00},
+      {code:'TKHO',  qty:2, mPct:1.00},
+    ],
+  };
+  return presets[sizeBucket] || [];
+}
+
+// ===== HELPERS =====
+function fmt(n){ if(!n) return '0'; return Math.round(n).toLocaleString('vi-VN'); }
+function fmtMoney(n){ return fmt(n) + ' đ'; }
+function fmtPct(n){ return (n||0).toFixed(2) + '%'; }
+function fmtBn(n){ return (n/1e9).toFixed(2) + ' tỷ'; }
+
+// ============================================================
+// ===== SYNC ENGINE — Đồng bộ 2 chiều giữa UI và STATE =====
+// ============================================================
+
+// Map input-id → state key
+const INPUT_STATE_MAP = {
+  'projectName':    'projectName',
+  'projectOwner':   'projectOwner',
+  'projectType':    'projectType',
+  'projectValue':   'projectValue',
+  'projectDuration':'duration',
+  'defaultRegion':  'region',
+  'qcType':         'projectType',   // mirror of projectType
+  'qcGTT':          'projectValue',  // mirror of projectValue
+  'qcT':            'duration',      // mirror of duration
+  'qcL':            'qcL',
+  'qcR':            'qcR',
+  'qcN':            'qcN',
+  'qcTimeCoef':     'timeCoef',
+  'spanRule':       'spanRule',
+  'totalStaffCount':'totalStaff',
+};
+
+// Gọi khi bất kỳ input thay đổi — cập nhật state rồi sync toàn bộ mirror
+function syncFromInput(sourceId){
+  const el = document.getElementById(sourceId);
+  if (!el) return;
+  const stateKey = INPUT_STATE_MAP[sourceId];
+  if (!stateKey) return;
+
+  // Parse value
+  let val;
+  if (el.type === 'number') {
+    val = sourceId === 'qcN' ? (parseInt(el.value) || null) : (parseFloat(el.value) || 0);
+  } else {
+    val = el.value;
+  }
+  APP_STATE[stateKey] = val;
+
+  // Sync mirrors (không sync ngược về input đang focus)
+  syncMirrors(sourceId, stateKey, val);
+
+  // Re-render tất cả panels đang active + tính toán
+  updateAll();
+}
+
+// Map stateKey → tất cả input IDs mirror nó
+const STATE_MIRRORS = {
+  projectType:  ['projectType','qcType'],
+  projectValue: ['projectValue','qcGTT'],
+  duration:     ['projectDuration','qcT'],
+  qcL:          ['qcL'],
+  qcR:          ['qcR'],
+  qcN:          ['qcN'],
+  timeCoef:     ['qcTimeCoef'],
+  spanRule:     ['spanRule'],
+  totalStaff:   ['totalStaffCount'],
+};
+
+function syncMirrors(sourceId, stateKey, val){
+  const mirrors = STATE_MIRRORS[stateKey] || [];
+  mirrors.forEach(id => {
+    if (id === sourceId) return; // không sync ngược
+    const el = document.getElementById(id);
+    if (!el || document.activeElement === el) return;
+    el.value = val === null ? '' : val;
+  });
+}
+
+// Event type/region đặc biệt → cần load defaults L, R
+function onProjectTypeChange(){
+  const val = document.getElementById('projectType').value;
+  APP_STATE.projectType = val;
+  document.getElementById('qcType').value = val;
+  // Load L, R chuẩn theo loại hình
+  const d = QC_DEFAULTS[val];
+  if (d) {
+    APP_STATE.qcL = d.L;
+    APP_STATE.qcR = d.R;
+    safeSet('qcL', d.L);
+    safeSet('qcR', d.R.toFixed(2));
+  }
+  updateAll();
+}
+
+function onQuickTypeChange(){
+  const val = document.getElementById('qcType').value;
+  APP_STATE.projectType = val;
+  document.getElementById('projectType').value = val;
+  const d = QC_DEFAULTS[val];
+  if (d) {
+    APP_STATE.qcL = d.L;
+    APP_STATE.qcR = d.R;
+    safeSet('qcL', d.L);
+    safeSet('qcR', d.R.toFixed(2));
+  }
+  updateAll();
+}
+
+function reloadQuickDefaults(){
+  const t = APP_STATE.projectType;
+  const d = QC_DEFAULTS[t];
+  if (!d) return;
+  APP_STATE.qcL = d.L;
+  APP_STATE.qcR = d.R;
+  APP_STATE.qcN = null;
+  safeSet('qcL', d.L);
+  safeSet('qcR', d.R.toFixed(2));
+  safeSet('qcN', '');
+  updateAll();
+}
+
+// getProjectInputs đọc từ STATE (không từ DOM) để luôn nhất quán
+function getProjectInputs(){
+  return {
+    name:          APP_STATE.projectName,
+    owner:         APP_STATE.projectOwner,
+    type:          APP_STATE.projectType,
+    value:         APP_STATE.projectValue,
+    duration:      APP_STATE.duration,
+    defaultRegion: APP_STATE.region,
+  };
+}
+
+// updateAll: re-render mọi thứ từ state
+function updateAll(){
+  renderCCMTable();
+  renderAdjustmentPreview();
+  refreshStaffTotals();
+  // Nếu quick panel visible → re-render
+  if (document.getElementById('tab-quick')?.classList.contains('active')) updateQuickCalc();
+  if (document.getElementById('tab-auto')?.classList.contains('active')) updateAutoAllocation();
+}
+
+function getSizeBucket(valueBn){
+  if (valueBn < 100) return 'small';
+  if (valueBn <= 250) return 'medium';
+  return 'large';
+}
+function sizeLabel(b){
+  return { small:'< 100 tỷ', medium:'100–250 tỷ', large:'> 250 tỷ' }[b];
+}
+
+function getCurrentCCM(){
+  const p = getProjectInputs();
+  const bucket = getSizeBucket(p.value);
+  const baseRate = CCM_RATES[p.type][bucket];
+  // Lấy hệ số nếu có
+  let coef = 1.0, applies = false;
+  const coefEl = document.getElementById('totalCoef');
+  if (coefEl) {
+    const adj = getAdjustmentInfo();
+    applies = adj.applies;
+    coef = applies ? adj.totalCoef : 1.0;
+  }
+  const rate = baseRate * coef;
+  return { rate, baseRate, coef, applies, bucket, type: p.type };
+}
+
+function getNgachClass(ngach){
+  if (ngach && ngach.startsWith('QL')) return 'badge-ql';
+  if (ngach && ngach.startsWith('CV')) return 'badge-cv';
+  if (ngach && ngach.startsWith('NV')) return 'badge-nv';
+  return 'badge';
+}
+
+// Helper lấy badge class theo nhóm (QLCC/QL/CV/NV)
+function getGroupBadgeClass(grp){
+  if (grp === 'QLCC') return 'badge-qlcc';
+  if (grp === 'QL')   return 'badge-ql';
+  if (grp === 'CV')   return 'badge-cv';
+  return 'badge-nv';
+}
+
+// Helper lấy màu theo nhóm
+function getGroupColor(grp){
+  if (grp === 'QLCC') return '#5b21b6';
+  if (grp === 'QL')   return '#166534';
+  if (grp === 'CV')   return '#854d0e';
+  return '#6b21a8';
+}
+
+// ===== TAB FLOW CONFIG =====
+const TAB_FLOWS = [
+  { id:'input', icon:'📋', label:'Thông tin DA',   desc:'Nhập loại hình, GTT, tiến độ, miền' },
+  { id:'quick', icon:'⚡', label:'Tính Phổ Thông', desc:'QL=GTT×R → N=QL/(L×T) + hệ số thời gian' },
+  { id:'auto',  icon:'🎯', label:'Phân bổ Tự động',desc:'N người → QL:CV:NV theo tỷ lệ 1:N:M' },
+  { id:'staff', icon:'👥', label:'Cơ cấu Nhân sự', desc:'Chi tiết 34 chức danh, số lượng, tháng' },
+  { id:'pmbok', icon:'📐', label:'PMBOK / ISO',     desc:'Process Groups, RACI, ISO 21502 roles' },
+  { id:'summary',icon:'📊',label:'Tổng hợp',        desc:'So sánh QL thực tế vs CCM đề xuất' },
+  { id:'report', icon:'📈',label:'Báo cáo',          desc:'Chi tiết + Xuất CSV' },
+];
+
+function renderFlowBar(activeId){
+  const bar = document.getElementById('flowBar');
+  if (!bar) return;
+  bar.innerHTML = TAB_FLOWS.map((t, i) => {
+    const isActive = t.id === activeId;
+    const bg = isActive ? '#16213e' : '#f8f9fc';
+    const color = isActive ? '#fff' : '#555';
+    const arrow = i < TAB_FLOWS.length - 1
+      ? `<div style="background:#e8e8ee;color:#aaa;padding:10px 4px;font-size:14px;display:flex;align-items:center">›</div>`
+      : '';
+    return `<div onclick="switchTab('${t.id}')" style="background:${bg};color:${color};padding:8px 10px;cursor:pointer;min-width:80px;text-align:center;line-height:1.4;flex:1;transition:background .15s" title="${t.desc}">
+      <div style="font-size:16px">${t.icon}</div>
+      <div style="font-weight:${isActive?'700':'500'};font-size:10px;margin-top:2px">${t.label}</div>
+      ${isActive ? `<div style="font-size:9px;opacity:.75;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.desc}</div>` : ''}
+    </div>${arrow}`;
+  }).join('');
+}
+
+// ===== TAB SWITCH =====
+function switchTab(name){
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  // Highlight tab button
+  const tabs = ['input','quick','auto','staff','pmbok','summary','report'];
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    if (tabs[i] === name) b.classList.add('active');
+  });
+  // Render flow bar
+  renderFlowBar(name);
+  // Khi vào tab → sync state → UI (cập nhật tất cả mirror inputs)
+  stateToUI();
+  // Render từng tab
+  if (name === 'summary') renderSummary();
+  if (name === 'report')  renderDetailedReport();
+  if (name === 'staff')   renderStaffTable();
+  if (name === 'auto')    updateAutoAllocation();
+  if (name === 'pmbok')   renderPMBOK();
+  if (name === 'quick')   updateQuickCalc();
+}
+
+// ===== RENDER CCM TABLE =====
+function renderCCMTable(){
+  const p = getProjectInputs();
+  const currentBucket = getSizeBucket(p.value);
+  const tbody = document.getElementById('ccmTableBody');
+  const types = ['NX','CT','TT'];
+  const buckets = ['small','medium','large'];
+  let html = '';
+  types.forEach(t => {
+    html += '<tr>';
+    html += '<td class="label">' + TYPE_LABELS[t] + '</td>';
+    buckets.forEach(b => {
+      const rate = CCM_RATES[t][b];
+      const isCurrent = (t === p.type && b === currentBucket);
+      html += '<td class="pct'+(isCurrent?' pct-highlight':'')+'" title="Click để chỉnh">'
+        + '<input type="number" step="0.01" value="'+rate.toFixed(2)+'" style="width:60px;border:none;background:transparent;text-align:center;font-weight:'+(isCurrent?'800':'700')+';color:inherit;font-size:13px" '
+        + 'onchange="updateCCMRate(\''+t+'\',\''+b+'\',this.value)"> %'
+        + '</td>';
+    });
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function updateCCMRate(type, bucket, value){
+  const v = parseFloat(value);
+  if (!isNaN(v)) CCM_RATES[type][bucket] = v;
+  updateAll();
+}
+
+// ===== SCENARIO / SCOPE / OVERLAP =====
+const SCENARIO_PRESETS = {
+  base:   { scope:'full',  overlap:'none',   total:1.00 },
+  easy:   { scope:'full',  overlap:'light',  total:1.08 },
+  medium: { scope:'th_ht', overlap:'medium', total:1.18 },
+  hard:   { scope:'tho',   overlap:'high',   total:1.32 },
+  finish: { scope:'ht',    overlap:'high',   total:1.45 },
+  me:     { scope:'me',    overlap:'high',   total:1.55 },
+};
+
+const SCOPE_LABELS = {
+  full:  'Tổng thầu (Thô + HT + M&E)',
+  th_ht: 'Thô + Hoàn thiện',
+  tho:   'Chỉ Thô',
+  ht:    'Chỉ Hoàn thiện',
+  me:    'Chỉ M&E',
+};
+const OVERLAP_LABELS = {
+  none:   'Không chồng chéo',
+  light:  'Chồng chéo nhẹ',
+  medium: 'Chồng chéo TB',
+  high:   'Chồng chéo cao',
+};
+
+function getCoefFromSelect(selectId){
+  const sel = document.getElementById(selectId);
+  const opt = sel.options[sel.selectedIndex];
+  return parseFloat(opt.getAttribute('data-coef')) || 1.0;
+}
+
+function applyScenarioPreset(){
+  const preset = document.getElementById('scenarioPreset').value;
+  if (preset === 'custom') return;
+  const cfg = SCENARIO_PRESETS[preset];
+  if (!cfg) return;
+  document.getElementById('scopeType').value = cfg.scope;
+  document.getElementById('overlapLevel').value = cfg.overlap;
+  document.getElementById('totalCoef').value = cfg.total.toFixed(2);
+  updateAll();
+}
+
+function onScopeOverlapChange(){
+  // Khi user đổi scope hoặc overlap → tính lại totalCoef = scope × overlap
+  const scopeCoef = getCoefFromSelect('scopeType');
+  const overlapCoef = getCoefFromSelect('overlapLevel');
+  const total = scopeCoef * overlapCoef;
+  document.getElementById('totalCoef').value = total.toFixed(2);
+  document.getElementById('scenarioPreset').value = 'custom';
+  updateAll();
+}
+
+function onTotalCoefChange(){
+  // Khi user nhập tay totalCoef → chuyển scenario về custom
+  document.getElementById('scenarioPreset').value = 'custom';
+  updateAll();
+}
+
+function getAdjustmentInfo(){
+  const p = getProjectInputs();
+  const totalCoef = parseFloat(document.getElementById('totalCoef')?.value) || 1.0;
+  const scopeKey = document.getElementById('scopeType')?.value || 'full';
+  const overlapKey = document.getElementById('overlapLevel')?.value || 'none';
+  const scopeCoef = getCoefFromSelect('scopeType');
+  const overlapCoef = getCoefFromSelect('overlapLevel');
+  // Hệ số chỉ áp dụng cho Cao tầng (CT)
+  const applies = (p.type === 'CT');
+  return { applies, totalCoef, scopeKey, overlapKey, scopeCoef, overlapCoef };
+}
+
+function renderAdjustmentPreview(){
+  const p = getProjectInputs();
+  const adj = getAdjustmentInfo();
+  const bucket = getSizeBucket(p.value);
+  const baseRate = CCM_RATES[p.type][bucket];
+  const adjustedRate = adj.applies ? baseRate * adj.totalCoef : baseRate;
+
+  const box = document.getElementById('adjustedRatePreview');
+  if (!adj.applies) {
+    box.innerHTML = '<div style="color:#92400e;font-size:12px"><b>⚠️ Hệ số không áp dụng:</b> Hiện đang chọn Loại hình <b>'+TYPE_LABELS[p.type]+'</b>. Hệ số Scope/Overlap chỉ dành cho High-Rise (cao tầng). Tỷ lệ giữ nguyên gốc: <b>'+fmtPct(baseRate)+'</b></div>';
+    return;
+  }
+
+  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;align-items:center">';
+  html += '<div><div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px">% CCM gốc</div><div style="font-size:18px;font-weight:800;color:#0f3460">'+fmtPct(baseRate)+'</div><div style="font-size:10px;color:#999">'+sizeLabel(bucket)+'</div></div>';
+  html += '<div style="text-align:center;font-size:18px;color:#f59e0b;font-weight:800">×</div>';
+  html += '<div><div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px">Hệ số Scope</div><div style="font-size:16px;font-weight:700;color:#854d0e">×'+adj.scopeCoef.toFixed(2)+'</div><div style="font-size:10px;color:#999">'+SCOPE_LABELS[adj.scopeKey]+'</div></div>';
+  html += '<div><div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px">Hệ số Overlap</div><div style="font-size:16px;font-weight:700;color:#854d0e">×'+adj.overlapCoef.toFixed(2)+'</div><div style="font-size:10px;color:#999">'+OVERLAP_LABELS[adj.overlapKey]+'</div></div>';
+  html += '<div style="text-align:center;font-size:18px;color:#f59e0b;font-weight:800">=</div>';
+  html += '<div style="background:linear-gradient(135deg,#fef3c7,#fde68a);padding:8px 12px;border-radius:8px;border:1.5px solid #f59e0b"><div style="font-size:10px;color:#92400e;text-transform:uppercase;letter-spacing:.5px;font-weight:700">% CCM Hiệu chỉnh</div><div style="font-size:22px;font-weight:800;color:#b45309">'+fmtPct(adjustedRate)+'</div><div style="font-size:10px;color:#92400e">×'+adj.totalCoef.toFixed(2)+' so với gốc</div></div>';
+  html += '</div>';
+  box.innerHTML = html;
+}
+
+// ===== STAFF TABLE =====
+function renderStaffTable(){
+  const tbody = document.getElementById('staffTableBody');
+  let html = '';
+
+  STAFF_DATA.forEach(s => {
+    const st = staffState[s.code];
+    const totalPerMonth = s.hard + s.welfare;
+    const lineTotal = (st.qty || 0) * totalPerMonth * (st.months || 0);
+    const isActive = (st.qty > 0);
+    const regionBadge = s.region ? '<span class="badge '+(s.region==='CM'?'badge-cm':'badge-tm')+'">'+s.region+'</span>' : '<span class="badge" style="background:#e5e7eb;color:#6b7280">—</span>';
+
+    html += '<tr id="row-'+s.code+'"'+(isActive?' class="row-active"':'')+'>';
+    html += '<td class="tc" style="color:#999">'+s.stt+'</td>';
+    html += '<td style="font-family:monospace;font-size:11px;font-weight:600;color:#0f3460">'+s.code+'</td>';
+    html += '<td style="font-weight:500">'+s.title+'</td>';
+    // Chỉ còn cột NHÓM (QLCC/QL/CV/NV) — đã bỏ cột Ngạch lương
+    const grp = getStaffGroup(s.code, s.ngach);
+    html += '<td class="tc"><span class="badge '+getGroupBadgeClass(grp)+'" style="font-weight:800">'+grp+'</span></td>';
+    html += '<td class="tc">'+regionBadge+'</td>';
+    html += '<td class="num-r">'+fmt(s.hard)+'</td>';
+    html += '<td class="num-r" style="color:#888">'+fmt(s.welfare)+'</td>';
+    html += '<td class="num-r" style="font-weight:700;color:#0f3460">'+fmt(totalPerMonth)+'</td>';
+    html += '<td class="tc"><input type="number" class="qty-input" id="qty-'+s.code+'" min="0" step="1" value="'+(st.qty||'')+'" placeholder="0" '
+      + 'onfocus="this.select()" '
+      + 'onchange="updateStaffQty(\''+s.code+'\',this.value)" '
+      + 'oninput="updateStaffQtyLive(\''+s.code+'\',this.value)"></td>';
+    html += '<td class="tc"><input type="number" class="month-input" id="month-'+s.code+'" min="0" step="0.5" value="'+(st.months||'')+'" placeholder="0" '
+      + 'onfocus="this.select()" '
+      + 'onchange="updateStaffMonths(\''+s.code+'\',this.value)" '
+      + 'oninput="updateStaffMonthsLive(\''+s.code+'\',this.value)"></td>';
+    html += '<td class="num-r" id="total-'+s.code+'" style="font-weight:800;color:'+(lineTotal>0?'#e94560':'#ccc')+'">'+(lineTotal>0?fmt(lineTotal):'—')+'</td>';
+    html += '</tr>';
+  });
+
+  tbody.innerHTML = html;
+  refreshStaffTotals();
+}
+
+// Cập nhật footer + cards mà KHÔNG re-render input rows (giữ focus)
+function refreshStaffTotals(){
+  let totalPeople = 0, totalCost = 0;
+  STAFF_DATA.forEach(s => {
+    const st = staffState[s.code];
+    const totalPerMonth = s.hard + s.welfare;
+    const lineTotal = (st.qty || 0) * totalPerMonth * (st.months || 0);
+    totalPeople += (st.qty || 0);
+    totalCost += lineTotal;
+  });
+  const p = getProjectInputs();
+  const projectValueVND = p.value * 1e9;
+  const actualPct = projectValueVND > 0 ? (totalCost / projectValueVND) * 100 : 0;
+
+  const tfoot = document.getElementById('staffTableFoot');
+  if (tfoot) {
+    tfoot.innerHTML = '<tr class="row-total">'
+      + '<td colspan="8" class="num-r" style="font-size:13px">TỔNG QUỸ LƯƠNG DỰ ÁN</td>'
+      + '<td class="tc" style="font-size:14px">'+totalPeople+'</td>'
+      + '<td class="tc">—</td>'
+      + '<td class="num-r" style="font-size:14px">'+fmt(totalCost)+'</td>'
+      + '</tr>';
+  }
+  renderQuickStats(totalPeople, totalCost, actualPct);
+}
+
+// Update riêng 1 row (ô Thành tiền + class active) - KHÔNG re-render bảng
+function refreshStaffRow(code){
+  const s = STAFF_DATA.find(x => x.code === code);
+  if (!s) return;
+  const st = staffState[code];
+  const totalPerMonth = s.hard + s.welfare;
+  const lineTotal = (st.qty || 0) * totalPerMonth * (st.months || 0);
+
+  const totalCell = document.getElementById('total-'+code);
+  if (totalCell) {
+    totalCell.textContent = lineTotal > 0 ? fmt(lineTotal) : '—';
+    totalCell.style.color = lineTotal > 0 ? '#e94560' : '#ccc';
+  }
+  const row = document.getElementById('row-'+code);
+  if (row) {
+    if (st.qty > 0) row.classList.add('row-active');
+    else row.classList.remove('row-active');
+  }
+}
+
+function renderQuickStats(totalPeople, totalCost, actualPct){
+  const ccm = getCurrentCCM();
+  const status = getStatusInfo(actualPct, ccm.rate);
+  const cards = [
+    { l:'Tổng nhân sự', v: totalPeople + ' người', c:'#0f3460' },
+    { l:'Quỹ lương', v: fmtBn(totalCost), c:'#e94560' },
+    { l:'% Thực tế / DA', v: fmtPct(actualPct), c: status.color },
+    { l:'% CCM đề xuất', v: fmtPct(ccm.rate), c:'#0a9396' },
+  ];
+  const target = document.getElementById('quickStatsTop');
+  if (target) {
+    target.innerHTML = cards.map(c =>
+      '<div class="card" style="border-left:4px solid '+c.c+'">'
+      + '<div class="card-val" style="color:'+c.c+'">'+c.v+'</div>'
+      + '<div class="card-label">'+c.l+'</div></div>'
+    ).join('');
+  }
+}
+
+// Live update (oninput): chỉ cập nhật state, ô Thành tiền và footer/cards. KHÔNG re-render input để giữ focus
+function updateStaffQtyLive(code, val){
+  const v = parseInt(val);
+  staffState[code].qty = isNaN(v) ? 0 : v;
+  refreshStaffRow(code);
+  refreshStaffTotals();
+}
+
+function updateStaffMonthsLive(code, val){
+  const v = parseFloat(val);
+  staffState[code].months = isNaN(v) ? 0 : v;
+  refreshStaffRow(code);
+  refreshStaffTotals();
+}
+
+// Final update (onchange - khi rời focus): xử lý logic phụ (auto-fill months)
+function updateStaffQty(code, val){
+  const v = parseInt(val) || 0;
+  staffState[code].qty = v;
+  // Auto-suggest months = duration nếu chưa nhập
+  if (v > 0 && !staffState[code].months) {
+    const p = getProjectInputs();
+    staffState[code].months = p.duration;
+    // Cập nhật ô tháng (chỉ ô tháng của dòng này, không re-render cả bảng)
+    const monthEl = document.getElementById('month-'+code);
+    if (monthEl) monthEl.value = p.duration;
+  }
+  refreshStaffRow(code);
+  refreshStaffTotals();
+}
+
+function updateStaffMonths(code, val){
+  const v = parseFloat(val) || 0;
+  staffState[code].months = v;
+  refreshStaffRow(code);
+  refreshStaffTotals();
+}
+
+function clearAllQty(){
+  if (!confirm('Xóa toàn bộ số lượng và số tháng đã nhập?')) return;
+  STAFF_DATA.forEach(s => { staffState[s.code] = { qty: 0, months: 0 }; });
+  renderStaffTable();
+}
+
+function setAllMonthsToDuration(){
+  const p = getProjectInputs();
+  STAFF_DATA.forEach(s => {
+    if (staffState[s.code].qty > 0) staffState[s.code].months = p.duration;
+  });
+  renderStaffTable();
+}
+
+// ===== LOAD DEFAULT STAFF =====
+function loadDefaultStaff(){
+  const p = getProjectInputs();
+  const bucket = getSizeBucket(p.value);
+  const preset = getDefaultStaffSuggestion(bucket);
+  const region = p.defaultRegion;
+
+  // Reset trước
+  STAFF_DATA.forEach(s => { staffState[s.code] = { qty: 0, months: 0 }; });
+
+  preset.forEach(item => {
+    // Tìm code phù hợp: nếu có CM/TM thì append region; nếu không thì dùng nguyên
+    let targetCode = item.code;
+    const hasRegionVariant = STAFF_DATA.find(s => s.code === item.code + region);
+    if (hasRegionVariant) targetCode = item.code + region;
+
+    if (staffState[targetCode]) {
+      staffState[targetCode].qty = item.qty;
+      staffState[targetCode].months = Math.round(p.duration * item.mPct * 10) / 10;
+    }
+  });
+  renderStaffTable();
+  alert('✅ Đã tải Cơ cấu Nhân sự đề xuất cho dự án quy mô: ' + sizeLabel(bucket) + '\nMiền: ' + (region === 'CM' ? 'Cùng miền' : 'Trái miền') + '\n\nBạn có thể chỉnh sửa Số lượng và Số tháng theo nhu cầu.');
+}
+
+function applyDefaultRegion(){
+  // Khi đổi miền mặc định, chuyển các vị trí có biến thể region sang đúng miền
+  const p = getProjectInputs();
+  const newRegion = p.defaultRegion;
+  const otherRegion = newRegion === 'CM' ? 'TM' : 'CM';
+
+  // Lấy các vị trí đang active có region khác
+  STAFF_DATA.forEach(s => {
+    if (s.region === otherRegion && staffState[s.code].qty > 0) {
+      // Chuyển sang biến thể cùng region mới
+      const baseCode = s.code.replace(/CM$|TM$/, '');
+      const newCode = baseCode + newRegion;
+      if (staffState[newCode] !== undefined) {
+        staffState[newCode] = { ...staffState[s.code] };
+        staffState[s.code] = { qty: 0, months: 0 };
+      }
+    }
+  });
+  renderStaffTable();
+}
+
+// (updateAll định nghĩa trong SYNC ENGINE ở trên)
+
+// ============================================================
+// ===== v1.2: AUTO ALLOCATION (1:4:5, 1:3:6, ...) =====
+// ============================================================
+
+// Map mỗi chức danh vào 1 trong 3 ngạch lớn: QL / CV / NV
+// QL = Quản lý (lãnh đạo, ra quyết định pháp lý)
+//   = GDK, GDDA, CHT, GSAT cấp 2 (an toàn cấp 2 vẫn ở QL vì ít kinh nghiệm cần cấp QL nhỏ)
+// CV = Chuyên viên (chuyên môn cao, giám sát kỹ thuật)
+//   = CHP (Chỉ huy phó - chuyên viên kỹ thuật cấp cao)
+//   = GSAT cấp 1 (An toàn cấp 1)
+//   = GSC (Giám sát chính), GS1 (Giám sát thi công cấp 1)
+// NV = Nhân viên (thực thi, hỗ trợ)
+//   = GS2, TKY, TKHO
+function getStaffGroup(code, ngach){
+  // Phân loại theo CHỨC DANH thực tế
+  // QLCC = Quản lý cấp cao (Giám đốc điều hành, Giám đốc dự án)
+  if (code.startsWith('GDK'))   return 'QLCC'; // Giám đốc khối / điều hành
+  if (code.startsWith('GDDA'))  return 'QLCC'; // Giám đốc dự án
+  // QL = Quản lý công trường (Chỉ huy trưởng)
+  if (code.startsWith('CHT'))   return 'QL';
+  // CV = Chuyên viên kỹ thuật
+  if (code.startsWith('CHP'))   return 'CV';   // Chỉ huy phó
+  if (code.startsWith('GSAT1')) return 'CV';   // GSAT cấp 1
+  if (code.startsWith('GSC'))   return 'CV';   // Giám sát chính
+  if (code.startsWith('GS1'))   return 'CV';   // Giám sát thi công cấp 1
+  // NV = Nhân viên thực thi
+  if (code.startsWith('GSAT2')) return 'NV';   // GSAT cấp 2 → NV
+  if (code.startsWith('GS2'))   return 'NV';   // Giám sát thi công cấp 2
+  if (code.startsWith('TKY'))   return 'NV';   // Thư ký
+  if (code.startsWith('TKHO'))  return 'NV';   // Thủ kho
+  return 'NV';
+}
+
+// Độ ưu tiên trong cùng ngạch khi auto-fill (cấp cao trước hay sau tùy ngữ cảnh)
+// Đối với QL: ưu tiên CHT/CHP trước GĐDA (vì GĐDA chỉ part-time)
+// Đối với CV: GSC trước GS1
+// Đối với NV: GS2 trước Thư ký, Thủ kho
+function getAutoFillPriority(code){
+  // Số càng nhỏ càng được chọn trước
+  if (code.startsWith('CHT')) return 1;
+  if (code.startsWith('CHP')) return 2;
+  if (code.startsWith('GSAT')) return 3;
+  if (code.startsWith('GDDA')) return 4;
+  if (code.startsWith('GDK')) return 9;
+  if (code.startsWith('GSC')) return 1;
+  if (code.startsWith('GS1')) return 2;
+  if (code.startsWith('GS2')) return 1;
+  if (code.startsWith('TKY')) return 2;
+  if (code.startsWith('TKHO')) return 3;
+  return 5;
+}
+
+// Cấp ưu tiên theo quy mô: large → ưu tiên cấp cao, small → cấp thấp
+function getLevelByBucket(prefix, bucket){
+  // prefix: 'CHT', 'CHP', 'GSC', 'GS', 'GSAT', 'GDDA'
+  if (bucket === 'small') return '3';
+  if (bucket === 'medium') return '2';
+  return '1'; // large
+}
+
+function parseRule(ruleStr){
+  // '1:3:6' -> {ql:1, cv:3, nv:6}
+  const parts = ruleStr.split(':').map(n => parseInt(n) || 0);
+  return { ql: parts[0]||0, cv: parts[1]||0, nv: parts[2]||0 };
+}
+
+function getCurrentRule(){
+  const ruleSel = document.getElementById('spanRule').value;
+  if (ruleSel === 'custom') {
+    return {
+      ql: parseInt(document.getElementById('ratioQL').value) || 0,
+      cv: parseInt(document.getElementById('ratioCV').value) || 0,
+      nv: parseInt(document.getElementById('ratioNV').value) || 0,
+    };
+  }
+  return parseRule(ruleSel);
+}
+
+function allocateByRule(totalCount, rule){
+  const sum = rule.ql + rule.cv + rule.nv;
+  if (sum === 0) return { ql:0, cv:0, nv:0 };
+  // Phân bổ theo tỷ lệ, round, đảm bảo tổng đúng
+  const rawQL = totalCount * rule.ql / sum;
+  const rawCV = totalCount * rule.cv / sum;
+  const rawNV = totalCount * rule.nv / sum;
+  let ql = Math.round(rawQL);
+  let cv = Math.round(rawCV);
+  let nv = totalCount - ql - cv;
+  if (nv < 0) { nv = 0; cv = totalCount - ql; }
+  // Đảm bảo có tối thiểu 1 QL
+  if (ql === 0 && totalCount > 0) { ql = 1; nv = Math.max(0, nv - 1); }
+  return { ql, cv, nv };
+}
+
+function suggestStaffCount(){
+  const p = getProjectInputs();
+  const bucket = getSizeBucket(p.value);
+  // Gợi ý tổng nhân sự theo quy mô
+  const suggestions = { small: 10, medium: 18, large: 32 };
+  const v = suggestions[bucket];
+  document.getElementById('totalStaffCount').value = v;
+  updateAutoAllocation();
+  alert('💡 Gợi ý theo Quy mô '+sizeLabel(bucket)+':\n• Quy mô <100 tỷ: ~10 người\n• Quy mô 100-250 tỷ: ~18 người\n• Quy mô >250 tỷ: ~32 người\n\nĐã đặt: '+v+' người (có thể chỉnh thủ công).');
+}
+
+function onCustomRatioChange(){
+  document.getElementById('spanRule').value = 'custom';
+  updateAutoAllocation();
+}
+
+function updateAutoAllocation(){
+  // Sync inputs khi không phải custom
+  const ruleStr = document.getElementById('spanRule').value;
+  if (ruleStr !== 'custom') {
+    const r = parseRule(ruleStr);
+    document.getElementById('ratioQL').value = r.ql;
+    document.getElementById('ratioCV').value = r.cv;
+    document.getElementById('ratioNV').value = r.nv;
+  }
+
+  const total = parseInt(document.getElementById('totalStaffCount').value) || 0;
+  const rule = getCurrentRule();
+  const alloc = allocateByRule(total, rule);
+
+  // Tính quỹ lương dự kiến cho mỗi ngạch (dùng lương TB của ngạch)
+  const p = getProjectInputs();
+  const bucket = getSizeBucket(p.value);
+  const region = p.defaultRegion;
+  const dur = p.duration;
+
+  // Lương TB theo ngạch (lấy lương cấp tương ứng quy mô)
+  const avgByGroup = computeAvgSalaryByGroup(bucket, region);
+
+  const costQL = alloc.ql * avgByGroup.QL * dur;
+  const costCV = alloc.cv * avgByGroup.CV * dur;
+  const costNV = alloc.nv * avgByGroup.NV * dur;
+  const costTotal = costQL + costCV + costNV;
+
+  const sum = rule.ql + rule.cv + rule.nv;
+  const pctQL = sum>0 ? (rule.ql/sum*100) : 0;
+  const pctCV = sum>0 ? (rule.cv/sum*100) : 0;
+  const pctNV = sum>0 ? (rule.nv/sum*100) : 0;
+
+  // Tỷ lệ quỹ lương thực tế (khác tỷ lệ đầu người vì lương khác nhau)
+  const cPctQL = costTotal>0 ? (costQL/costTotal*100) : 0;
+  const cPctCV = costTotal>0 ? (costCV/costTotal*100) : 0;
+  const cPctNV = costTotal>0 ? (costNV/costTotal*100) : 0;
+
+  let html = '<div class="alloc-grid">';
+  html += '<div class="alloc-card ql"><div class="ratio">QL · Quản lý · ×'+rule.ql+'</div><div class="count" style="color:#92400e">'+alloc.ql+'</div><div class="label">người ('+pctQL.toFixed(0)+'% đầu người)</div><div class="pct" style="color:#92400e">💰 '+cPctQL.toFixed(1)+'% quỹ lương</div></div>';
+  html += '<div class="alloc-card cv"><div class="ratio">CV · Chuyên viên · ×'+rule.cv+'</div><div class="count" style="color:#1e40af">'+alloc.cv+'</div><div class="label">người ('+pctCV.toFixed(0)+'% đầu người)</div><div class="pct" style="color:#1e40af">💰 '+cPctCV.toFixed(1)+'% quỹ lương</div></div>';
+  html += '<div class="alloc-card nv"><div class="ratio">NV · Nhân viên · ×'+rule.nv+'</div><div class="count" style="color:#166534">'+alloc.nv+'</div><div class="label">người ('+pctNV.toFixed(0)+'% đầu người)</div><div class="pct" style="color:#166534">💰 '+cPctNV.toFixed(1)+'% quỹ lương</div></div>';
+  html += '</div>';
+
+  html += '<div style="margin-top:12px;padding:10px;background:#f8fafc;border-radius:8px;font-size:12px">';
+  html += '<div class="info-row"><span>Tổng nhân sự</span><b>'+total+' người = '+alloc.ql+' QL + '+alloc.cv+' CV + '+alloc.nv+' NV</b></div>';
+  html += '<div class="info-row"><span>Quỹ lương ước tính</span><b style="color:#e94560">'+fmtBn(costTotal)+'</b></div>';
+  html += '<div class="info-row"><span>% / Doanh thu DA ('+p.value+' tỷ)</span><b style="color:#0a9396">'+fmtPct(costTotal/(p.value*1e9)*100)+'</b></div>';
+  html += '<div class="info-row"><span>Lương TB/người/tháng (QL)</span><b>'+fmt(avgByGroup.QL)+' VND</b></div>';
+  html += '<div class="info-row"><span>Lương TB/người/tháng (CV)</span><b>'+fmt(avgByGroup.CV)+' VND</b></div>';
+  html += '<div class="info-row"><span>Lương TB/người/tháng (NV)</span><b>'+fmt(avgByGroup.NV)+' VND</b></div>';
+  html += '</div>';
+  html += '<div class="notice" style="margin-top:8px">⚠️ Tỷ lệ đầu người KHÁC tỷ lệ quỹ lương do mức lương các ngạch khác nhau. QL chiếm % đầu người ít nhưng % quỹ lương cao nhất.</div>';
+
+  document.getElementById('allocationPreview').innerHTML = html;
+
+  renderNgachDetail(alloc, bucket, region);
+  renderRuleCompare(total, bucket, region);
+}
+
+function computeAvgSalaryByGroup(bucket, region){
+  // Lương TB theo ngạch dựa trên các vị trí thực tế trong nhóm (cùng phân loại với getStaffGroup)
+  const lvl = { small:'3', medium:'2', large:'1' }[bucket];
+
+  const salaryOf = (code) => {
+    const s = STAFF_DATA.find(x => x.code === code);
+    return s ? (s.hard + s.welfare) : 0;
+  };
+
+  const findCode = (prefix, level) => {
+    // Tìm với region trước
+    const withReg = STAFF_DATA.find(s => s.code === prefix + level + region);
+    if (withReg) return prefix + level + region;
+    const noReg = STAFF_DATA.find(s => s.code === prefix + level);
+    if (noReg) return prefix + level;
+    // Fallback - bất kỳ cấp nào có prefix
+    const any = STAFF_DATA.find(s => s.code.startsWith(prefix));
+    return any ? any.code : null;
+  };
+
+  // QL = CHT (cấp tương ứng) + GDDA (cấp tương ứng)
+  const cht = salaryOf(findCode('CHT', lvl));
+  const gdda = salaryOf(findCode('GDDA', lvl));
+  const qlAvg = Math.round((cht + gdda) / 2);
+
+  // CV = CHP + GSAT1 + GSC + GS1 (cấp tương ứng, GSAT1 luôn cấp 1)
+  const chp = salaryOf(findCode('CHP', lvl));
+  const gsat1 = salaryOf(findCode('GSAT', '1'));
+  const gsc = salaryOf(findCode('GSC', lvl === '3' ? '2' : lvl));  // GSC chỉ có cấp 1,2
+  const gs1 = salaryOf(findCode('GS1', '1'));  // GS thi công cấp 1
+  const cvAvg = Math.round((chp + gsat1 + gsc + gs1) / 4);
+
+  // NV = GS2 + GSAT2 + TKY + TKHO
+  const gs2 = salaryOf(findCode('GS2', '2'));
+  const gsat2 = salaryOf(findCode('GSAT', '2'));
+  const tky = salaryOf(findCode('TKY', ''));
+  const tkho = salaryOf(findCode('TKHO', ''));
+  const nvAvg = Math.round((gs2 + gsat2 + tky + tkho) / 4);
+
+  return { QL: qlAvg, CV: cvAvg, NV: nvAvg };
+}
+
+function renderNgachDetail(alloc, bucket, region){
+  // Phân bổ chi tiết từ alloc.ql vào các chức danh QL cụ thể
+  const lvl = { small:'3', medium:'2', large:'1' }[bucket];
+
+  // Cấu hình groups — phân theo CHỨC DANH thực tế (không phải ngạch lương)
+  // QL: Chỉ huy trưởng (R - PM), Giám đốc DA (Sponsor delegate, part-time)
+  // CV: Chỉ huy phó (Team Lead - kỹ thuật), GSC, GS1, GSAT cấp 1 (QC chuyên trách)
+  // NV: GS thi công cấp 2, Thư ký, Thủ kho, GSAT cấp 2
+  const groups = {
+    QL: [
+      { prefix:'CHT', name:'Chỉ huy trưởng', share: 0.70, mandatory: true, levels:['1','2','3'] },
+      { prefix:'GDDA',name:'Giám đốc DA',    share: 0.30, mandatory: false, levels:['1','2','3'], partTime: true },
+    ],
+    CV: [
+      { prefix:'CHP', name:'Chỉ huy phó',     share: 0.35, mandatory: false, levels:['1','2','3'] },
+      { prefix:'GSAT',name:'GS An toàn (c.1)',share: 0.15, mandatory: true,  levels:['1'] },  // GSAT cấp 1 → CV
+      { prefix:'GSC', name:'Giám sát chính',  share: 0.20, mandatory: false, levels:['1','2'] },
+      { prefix:'GS1', name:'Giám sát TC c.1', share: 0.30, mandatory: false, levels:['1'] },
+    ],
+    NV: [
+      { prefix:'GS2', name:'Giám sát TC c.2', share: 0.50, mandatory: false, levels:['2'] },
+      { prefix:'GSAT',name:'GS An toàn (c.2)',share: 0.15, mandatory: false, levels:['2'] },  // GSAT cấp 2 → NV
+      { prefix:'TKY', name:'Thư ký',          share: 0.20, mandatory: false, levels:[''] },
+      { prefix:'TKHO',name:'Thủ kho',         share: 0.15, mandatory: false, levels:[''] },
+    ],
+  };
+
+  const counts = { QL: alloc.ql, CV: alloc.cv, NV: alloc.nv };
+  let html = '<div class="tbl-wrap"><table><thead><tr>';
+  ['Ngạch','Chức danh','Code đề xuất','Số lượng','% đầu người','Lương/tháng','Ghi chú'].forEach(h =>
+    html += '<th style="font-size:11px">'+h+'</th>'
+  );
+  html += '</tr></thead><tbody>';
+
+  Object.keys(groups).forEach(grp => {
+    const total = counts[grp];
+    const items = groups[grp];
+    const alloced = distributeWithMandatory(total, items);
+
+    items.forEach((it, idx) => {
+      const n = alloced[idx];
+      // Tìm chức danh cụ thể: ưu tiên cấp theo bucket, nhưng giới hạn theo levels của item
+      const code = resolveCode(it, bucket, region);
+      const staff = STAFF_DATA.find(s => s.code === code);
+      const salary = staff ? (staff.hard + staff.welfare) : 0;
+      const pct = total>0 ? (n/total*100) : 0;
+      const grpColor = getGroupColor(grp);
+      const mandatoryBadge = it.mandatory ? ' <span style="background:#fee2e2;color:#991b1b;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700">BẮT BUỘC</span>' : '';
+      const partTimeBadge = it.partTime ? ' <span style="background:#fef3c7;color:#854d0e;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700">PART-TIME</span>' : '';
+
+      html += '<tr'+(n===0?' style="opacity:.5"':'')+'>';
+      if (idx===0) html += '<td rowspan="'+items.length+'" style="background:#f8fafc;font-weight:800;color:'+grpColor+'">'+grp+' ('+total+')</td>';
+      html += '<td style="font-weight:500">'+it.name+mandatoryBadge+partTimeBadge+'</td>';
+      html += '<td style="font-family:monospace;font-size:11px;color:#0f3460;font-weight:600">'+(code||'—')+'</td>';
+      html += '<td class="tc" style="font-weight:800;color:'+grpColor+';font-size:14px">'+n+'</td>';
+      html += '<td class="tc">'+pct.toFixed(0)+'%</td>';
+      html += '<td class="num-r">'+fmt(salary)+'</td>';
+      html += '<td style="font-size:11px;color:#666">'+(it.share*100).toFixed(0)+'% của ngạch '+grp+'</td>';
+      html += '</tr>';
+    });
+  });
+
+  html += '</tbody></table></div>';
+  document.getElementById('ngachDetailBox').innerHTML = html;
+}
+
+// Resolve code thực tế từ item config + quy mô + miền
+function resolveCode(item, bucket, region){
+  // levels: cấp khả dụng của vị trí này
+  // bucket → cấp tương ứng (small=3, medium=2, large=1)
+  const preferLvl = { small:'3', medium:'2', large:'1' }[bucket];
+  // Tìm cấp gần nhất với preferLvl trong levels của item
+  let useLvl = preferLvl;
+  if (item.levels && item.levels.length > 0 && !item.levels.includes(preferLvl)) {
+    // Lấy cấp đầu tiên trong levels
+    useLvl = item.levels[0];
+  }
+  let code = item.prefix + useLvl;
+  // Thử với region
+  const withRegion = STAFF_DATA.find(s => s.code === code + region);
+  if (withRegion) return code + region;
+  // Thử không region
+  const noRegion = STAFF_DATA.find(s => s.code === code);
+  if (noRegion) return code;
+  // Fallback: tìm code khác có cùng prefix
+  const anyMatch = STAFF_DATA.find(s => s.code.startsWith(item.prefix));
+  return anyMatch ? anyMatch.code : null;
+}
+
+// Phân phối tổng `total` vào các item theo `share`, ưu tiên item mandatory có tối thiểu 1 nếu total cho phép
+function distributeWithMandatory(total, items){
+  if (total <= 0) return items.map(() => 0);
+
+  // Đếm item bắt buộc
+  const mandatoryCount = items.filter(it => it.mandatory).length;
+
+  // Nếu total < mandatoryCount: chỉ phân 1 cho mỗi mandatory theo thứ tự, không đủ thì bỏ
+  if (total <= mandatoryCount) {
+    const result = items.map(() => 0);
+    let assigned = 0;
+    items.forEach((it, i) => {
+      if (it.mandatory && assigned < total) { result[i] = 1; assigned++; }
+    });
+    return result;
+  }
+
+  // Đảm bảo mỗi mandatory có ít nhất 1
+  const result = items.map(it => it.mandatory ? 1 : 0);
+  const remaining = total - mandatoryCount;
+
+  // Phân phần còn lại theo share
+  const sumShare = items.reduce((a, it) => a + it.share, 0);
+  if (sumShare === 0 || remaining === 0) {
+    // Đẩy nốt phần thừa vào item có share lớn nhất
+    if (remaining > 0) {
+      const maxIdx = items.reduce((mi, it, i) => it.share > items[mi].share ? i : mi, 0);
+      result[maxIdx] += remaining;
+    }
+    return result;
+  }
+  const raw = items.map(it => remaining * it.share / sumShare);
+  let extra = raw.map(v => Math.floor(v));
+  let used = extra.reduce((a, b) => a + b, 0);
+  let leftover = remaining - used;
+  const fracs = raw.map((v, i) => ({ i, frac: v - Math.floor(v) }));
+  fracs.sort((a, b) => b.frac - a.frac);
+  for (let k = 0; k < leftover; k++) extra[fracs[k % fracs.length].i]++;
+
+  return result.map((v, i) => v + extra[i]);
+}
+
+function renderRuleCompare(total, bucket, region){
+  const rules = [
+    { name:'1:4:5', desc:'Agile / Quality-focused' },
+    { name:'1:3:6', desc:'Traditional / Waterfall' },
+    { name:'1:2:7', desc:'Heavy-execution' },
+    { name:'1:5:4', desc:'Quality-heavy' },
+  ];
+  const avg = computeAvgSalaryByGroup(bucket, region);
+  const p = getProjectInputs();
+  const dur = p.duration;
+  const projectVND = p.value * 1e9;
+  const currentRule = document.getElementById('spanRule').value;
+
+  let html = '<div class="tbl-wrap" style="margin-bottom:0"><table class="rule-compare-tbl"><thead><tr>';
+  html += '<th style="text-align:left">Quy tắc</th><th>QL</th><th>CV</th><th>NV</th><th>Quỹ lương</th><th>% / DT</th><th>% QL quỹ</th><th>% CV quỹ</th><th>% NV quỹ</th>';
+  html += '</tr></thead><tbody>';
+
+  rules.forEach(r => {
+    const ruleObj = parseRule(r.name);
+    const a = allocateByRule(total, ruleObj);
+    const cQL = a.ql * avg.QL * dur;
+    const cCV = a.cv * avg.CV * dur;
+    const cNV = a.nv * avg.NV * dur;
+    const cTot = cQL + cCV + cNV;
+    const pTot = projectVND>0 ? (cTot/projectVND*100) : 0;
+    const isActive = (r.name === currentRule);
+    html += '<tr'+(isActive?' class="active-rule"':'')+'>';
+    html += '<td class="rule-name">'+r.name+(isActive?' ⭐':'')+'<br><span style="font-size:10px;color:#666;font-weight:400">'+r.desc+'</span></td>';
+    html += '<td>'+a.ql+'</td><td>'+a.cv+'</td><td>'+a.nv+'</td>';
+    html += '<td style="font-weight:700;color:#e94560">'+fmtBn(cTot)+'</td>';
+    html += '<td style="font-weight:700;color:#0a9396">'+pTot.toFixed(2)+'%</td>';
+    html += '<td>'+(cTot>0?(cQL/cTot*100).toFixed(1):'0')+'%</td>';
+    html += '<td>'+(cTot>0?(cCV/cTot*100).toFixed(1):'0')+'%</td>';
+    html += '<td>'+(cTot>0?(cNV/cTot*100).toFixed(1):'0')+'%</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  html += '<div class="notice" style="margin-top:8px">💡 Mặc dù số lượng QL ít nhất, nhưng do lương cao nên QL thường chiếm 30-45% quỹ lương. Quy tắc 1:5:4 (Quality-heavy) sẽ tăng % quỹ CV.</div>';
+  document.getElementById('ruleCompareBox').innerHTML = html;
+}
+
+function applyAutoAllocation(){
+  const total = parseInt(document.getElementById('totalStaffCount').value) || 0;
+  if (total <= 0) {
+    alert('⚠️ Tổng số nhân sự phải > 0');
+    return;
+  }
+  if (!confirm('Hệ thống sẽ ghi đè Cơ cấu Nhân sự hiện tại theo phân bổ này. Tiếp tục?')) return;
+
+  const rule = getCurrentRule();
+  const alloc = allocateByRule(total, rule);
+  const p = getProjectInputs();
+  const bucket = getSizeBucket(p.value);
+  const region = p.defaultRegion;
+
+  // Reset
+  STAFF_DATA.forEach(s => { staffState[s.code] = { qty: 0, months: 0 }; });
+
+  // CÙNG cấu hình với renderNgachDetail
+  const groups = {
+    QL: [
+      { prefix:'CHT', share: 0.70, mPct: 1.00, mandatory:true,  levels:['1','2','3'] },
+      { prefix:'GDDA',share: 0.30, mPct: 0.30, mandatory:false, levels:['1','2','3'], partTime:true },
+    ],
+    CV: [
+      { prefix:'CHP', share: 0.35, mPct: 1.00, mandatory:false, levels:['1','2','3'] },
+      { prefix:'GSAT',share: 0.15, mPct: 1.00, mandatory:true,  levels:['1'] },
+      { prefix:'GSC', share: 0.20, mPct: 1.00, mandatory:false, levels:['1','2'] },
+      { prefix:'GS1', share: 0.30, mPct: 1.00, mandatory:false, levels:['1'] },
+    ],
+    NV: [
+      { prefix:'GS2', share: 0.50, mPct: 1.00, mandatory:false, levels:['2'] },
+      { prefix:'GSAT',share: 0.15, mPct: 1.00, mandatory:false, levels:['2'] },
+      { prefix:'TKY', share: 0.20, mPct: 1.00, mandatory:false, levels:[''] },
+      { prefix:'TKHO',share: 0.15, mPct: 1.00, mandatory:false, levels:[''] },
+    ],
+  };
+  const counts = { QL: alloc.ql, CV: alloc.cv, NV: alloc.nv };
+
+  let appliedSummary = [];
+  Object.keys(groups).forEach(grp => {
+    const totalNgach = counts[grp];
+    const items = groups[grp];
+    const alloced = distributeWithMandatory(totalNgach, items);
+
+    items.forEach((it, idx) => {
+      const n = alloced[idx];
+      if (n === 0) return;
+      const code = resolveCode(it, bucket, region);
+      if (code && staffState[code] !== undefined) {
+        staffState[code].qty = n;
+        staffState[code].months = Math.round(p.duration * it.mPct * 10) / 10;
+        appliedSummary.push(grp + ' · ' + code + ': ' + n + ' người × ' + staffState[code].months + ' tháng');
+      }
+    });
+  });
+
+  // Re-render bảng nhân sự
+  renderStaffTable();
+
+  alert('✅ Đã áp dụng phân bổ '+document.getElementById('spanRule').value+': '+alloc.ql+' QL + '+alloc.cv+' CV + '+alloc.nv+' NV = '+total+' người.\n\n📋 Chi tiết áp dụng:\n' + appliedSummary.join('\n') + '\n\nChuyển sang tab Cơ cấu Nhân sự để xem chi tiết.');
+  switchTab('staff');
+}
+
+// ============================================================
+// ===== v1.2: PMBOK + ISO 21502 =====
+// ============================================================
+
+// PMBOK 5 Process Groups với % thời gian mặc định
+const PMBOK_PHASES = [
+  { id:'INI', name:'Initiating',            vn:'Khởi động',          pct:5,  color:'#3b82f6', intensity:0.3,
+    activities:'Project Charter, Stakeholders ID, Feasibility',
+    staffFocus:'GDDA, GDK, CHT — Khởi tạo, ký HĐ, lập đội' },
+  { id:'PLN', name:'Planning',              vn:'Lập kế hoạch',       pct:10, color:'#6366f1', intensity:0.5,
+    activities:'WBS, Schedule, Cost, Risk, Quality, Procurement plans',
+    staffFocus:'GDDA, CHT, CHP, GSC — Bóc tách KL, lập tiến độ, dự toán' },
+  { id:'EXE', name:'Executing',             vn:'Thực hiện',          pct:60, color:'#e94560', intensity:1.0,
+    activities:'Construction, Quality Mgmt, Team Mgmt, Communications',
+    staffFocus:'TOÀN BỘ team peak — Thi công, giám sát, kiểm soát chất lượng' },
+  { id:'MNC', name:'Monitoring & Controlling', vn:'Giám sát & Kiểm soát', pct:18, color:'#f59e0b', intensity:0.7,
+    activities:'Performance, Change Control, Quality Control, Risk Control',
+    staffFocus:'GSAT, GSC, GS — Song song Executing, kiểm soát tiến độ/chi phí' },
+  { id:'CLO', name:'Closing',               vn:'Kết thúc',           pct:7,  color:'#10b981', intensity:0.4,
+    activities:'Final Acceptance, Documentation, Lessons Learned, Handover',
+    staffFocus:'CHT, Thư ký, Thủ kho — Bàn giao, quyết toán, lưu trữ' },
+];
+// Lưu ý: MNC chạy song song với EXE, % chỉ minh họa cường độ hoạt động riêng.
+
+// PMBOK 10 Knowledge Areas + RACI cho từng ngạch
+const PMBOK_KA = [
+  { id:'INT', name:'Integration Management',   vn:'Quản lý Tích hợp',  raci:{ GDDA:'A', CHT:'R', CHP:'C', GSC:'C', GS:'I', GSAT:'C', TKY:'I' } },
+  { id:'SCP', name:'Scope Management',         vn:'Quản lý Phạm vi',   raci:{ GDDA:'A', CHT:'R', CHP:'R', GSC:'C', GS:'I', GSAT:'I', TKY:'I' } },
+  { id:'SCH', name:'Schedule Management',      vn:'Quản lý Tiến độ',   raci:{ GDDA:'A', CHT:'R', CHP:'R', GSC:'C', GS:'I', GSAT:'I', TKY:'C' } },
+  { id:'COS', name:'Cost Management',          vn:'Quản lý Chi phí',   raci:{ GDDA:'A', CHT:'R', CHP:'C', GSC:'I', GS:'I', GSAT:'I', TKY:'C' } },
+  { id:'QUA', name:'Quality Management',       vn:'Quản lý Chất lượng',raci:{ GDDA:'A', CHT:'C', CHP:'R', GSC:'R', GS:'R', GSAT:'C', TKY:'I' } },
+  { id:'RES', name:'Resource Management',      vn:'Quản lý Nguồn lực', raci:{ GDDA:'A', CHT:'R', CHP:'R', GSC:'C', GS:'I', GSAT:'I', TKY:'C' } },
+  { id:'COM', name:'Communications Mgmt',      vn:'Quản lý Truyền thông',raci:{ GDDA:'A', CHT:'R', CHP:'C', GSC:'C', GS:'I', GSAT:'I', TKY:'R' } },
+  { id:'RSK', name:'Risk Management',          vn:'Quản lý Rủi ro',    raci:{ GDDA:'A', CHT:'R', CHP:'C', GSC:'C', GS:'I', GSAT:'R', TKY:'I' } },
+  { id:'PRO', name:'Procurement Management',   vn:'Quản lý Mua sắm',   raci:{ GDDA:'A', CHT:'C', CHP:'C', GSC:'I', GS:'I', GSAT:'I', TKY:'R' } },
+  { id:'STK', name:'Stakeholder Management',   vn:'Quản lý Bên liên quan',raci:{ GDDA:'A', CHT:'R', CHP:'C', GSC:'I', GS:'I', GSAT:'I', TKY:'C' } },
+];
+
+// ISO 21502:2020 Roles
+const ISO_ROLES = [
+  { role:'Project Sponsor',            vn:'Nhà tài trợ DA',          desc:'CĐT/Chủ đầu tư — bên ngoài quỹ lương',
+    codes:[], external:true, note:'Không tính vào quỹ lương' },
+  { role:'Project Steering Committee', vn:'Ban Chỉ đạo DA',          desc:'Định hướng chiến lược, ra quyết định lớn',
+    codes:['GDK1','GDK2','GDK3'], external:false, note:'Part-time, ~10-30% thời gian' },
+  { role:'Project Manager',            vn:'Trưởng Dự án',            desc:'Chịu trách nhiệm toàn diện về DA',
+    codes:['GDDA1','GDDA2','GDDA3','CHT1CM','CHT1TM','CHT2CM','CHT2TM','CHT3CM','CHT3TM'], external:false, note:'Single Point of Accountability' },
+  { role:'Project Team Lead',          vn:'Trưởng nhóm Chuyên môn',  desc:'Quản lý mảng kỹ thuật, kiểm soát chất lượng',
+    codes:['CHP1CM','CHP1TM','CHP2CM','CHP2TM','CHP3CM','CHP3TM','GSC1CM','GSC1TM','GSC2CM','GSC2TM'], external:false, note:'Báo cáo trực tiếp PM' },
+  { role:'Project Team Members',       vn:'Thành viên DA',           desc:'Thực thi công việc chuyên môn',
+    codes:['GS1CM','GS1TM','GS2CM','GS2TM'], external:false, note:'Giám sát thi công hằng ngày' },
+  { role:'Project Quality Assurance',  vn:'Đảm bảo Chất lượng',      desc:'Kiểm soát chất lượng và an toàn',
+    codes:['GSAT1CM','GSAT1TM','GSAT2CM','GSAT2TM'], external:false, note:'Độc lập với team thi công' },
+  { role:'Project Support Office',     vn:'Văn phòng Hỗ trợ DA',     desc:'Hành chính, hậu cần, lưu trữ',
+    codes:['TKYCM','TKYTM','TKHOCM','TKHOTM'], external:false, note:'PMO functions' },
+];
+
+function renderPMBOK(){
+  renderISORoles();
+  renderProcessGroups();
+  renderRACI();
+}
+
+function renderISORoles(){
+  let html = '<div class="iso-role-grid">';
+  ISO_ROLES.forEach(r => {
+    const activeCodes = r.codes.filter(c => staffState[c] && staffState[c].qty > 0);
+    const totalQty = activeCodes.reduce((sum, c) => sum + (staffState[c].qty || 0), 0);
+    const isExternal = r.external;
+
+    html += '<div class="iso-role-card"'+(isExternal?' style="opacity:.6;border-left-color:#9ca3af"':'')+'>';
+    html += '<div class="role-title">'+r.role+'<br><span style="font-size:10px;color:#7b2cbf;font-weight:600">'+r.vn+'</span></div>';
+    html += '<div class="role-desc">'+r.desc+'</div>';
+
+    if (isExternal) {
+      html += '<div style="font-size:11px;color:#dc2626;font-weight:700">⚠️ '+r.note+'</div>';
+    } else {
+      html += '<div class="role-codes"><b>Vị trí áp dụng:</b><br>';
+      if (activeCodes.length > 0) {
+        html += '<span style="color:#0a9396;font-weight:700">✅ Đang có: '+totalQty+' người</span> ('+activeCodes.join(', ')+')';
+      } else {
+        html += '<span style="color:#9ca3af">— Chưa có nhân sự nào —</span><br>';
+        html += '<span style="font-size:10px;color:#6b7280">Code khả dụng: '+r.codes.slice(0,3).join(', ')+(r.codes.length>3?'...':'')+'</span>';
+      }
+      html += '</div>';
+      html += '<div style="font-size:10px;color:#7b2cbf;margin-top:6px;font-style:italic">💡 '+r.note+'</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Summary
+  const totals = calcTotals();
+  html += '<div style="margin-top:14px;padding:10px;background:#f5f3ff;border-radius:8px;font-size:12px;line-height:1.7;border:1px solid #ddd6fe">';
+  html += '<b style="color:#6b21a8">📌 Đánh giá Cơ cấu Tổ chức theo ISO 21502:</b><br>';
+
+  const hasPM = ISO_ROLES[2].codes.some(c => staffState[c] && staffState[c].qty > 0);
+  const hasQA = ISO_ROLES[5].codes.some(c => staffState[c] && staffState[c].qty > 0);
+  const hasPSO = ISO_ROLES[6].codes.some(c => staffState[c] && staffState[c].qty > 0);
+  const hasTL = ISO_ROLES[3].codes.some(c => staffState[c] && staffState[c].qty > 0);
+
+  html += (hasPM?'✅':'❌')+' <b>Project Manager</b> — Single Point of Accountability '+(hasPM?'(có)':'(THIẾU)')+'<br>';
+  html += (hasTL?'✅':'❌')+' <b>Team Lead</b> — Quản lý mảng chuyên môn '+(hasTL?'(có)':'(THIẾU)')+'<br>';
+  html += (hasQA?'✅':'⚠️')+' <b>Quality Assurance (GSAT)</b> — Đảm bảo CL độc lập '+(hasQA?'(có)':'(thiếu — bắt buộc cho dự án XD)')+'<br>';
+  html += (hasPSO?'✅':'⚠️')+' <b>Project Support Office</b> — PMO hành chính '+(hasPSO?'(có)':'(nên có)')+'<br>';
+  html += '</div>';
+
+  document.getElementById('iso21502Box').innerHTML = html;
+}
+
+function renderProcessGroups(){
+  const p = getProjectInputs();
+  const totalDur = p.duration || 0;
+  const totals = calcTotals();
+
+  // Timeline
+  let html = '<div class="timeline">';
+  PMBOK_PHASES.forEach(ph => {
+    html += '<div class="timeline-phase" style="flex:'+ph.pct+';background:'+ph.color+'">';
+    html += ph.vn+'<span class="phase-pct">'+ph.pct+'% · '+(totalDur*ph.pct/100).toFixed(1)+' tháng</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Detail table
+  html += '<table class="process-table"><thead><tr>';
+  ['Giai đoạn','% Thời gian','Số tháng','Cường độ NS','Hoạt động chính','Nhân sự trọng tâm','Số NS ước tính'].forEach(h =>
+    html += '<th style="font-size:11px">'+h+'</th>'
+  );
+  html += '</tr></thead><tbody>';
+  PMBOK_PHASES.forEach(ph => {
+    const monthsInPhase = totalDur * ph.pct / 100;
+    const staffInPhase = Math.round(totals.totalPeople * ph.intensity);
+    html += '<tr>';
+    html += '<td><span style="display:inline-block;width:10px;height:10px;background:'+ph.color+';border-radius:50%;margin-right:6px;vertical-align:middle"></span><b class="phase-name">'+ph.vn+'</b> <span style="color:#999;font-size:11px">('+ph.name+')</span></td>';
+    html += '<td class="tc">'+ph.pct+'%</td>';
+    html += '<td class="tc"><b>'+monthsInPhase.toFixed(1)+'</b></td>';
+    html += '<td class="tc"><b style="color:'+ph.color+'">'+(ph.intensity*100).toFixed(0)+'%</b></td>';
+    html += '<td style="font-size:11px">'+ph.activities+'</td>';
+    html += '<td style="font-size:11px;color:#555">'+ph.staffFocus+'</td>';
+    html += '<td class="tc"><b style="color:#e94560">'+staffInPhase+'</b></td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+
+  html += '<div class="notice" style="margin-top:10px">💡 <b>Lưu ý:</b> Giai đoạn Monitoring & Controlling chạy SONG SONG với Executing, không nối tiếp. % thời gian thể hiện cường độ hoạt động riêng. Tổng nhân sự cao điểm vào giai đoạn Executing.</div>';
+
+  document.getElementById('processGroupsBox').innerHTML = html;
+}
+
+function renderRACI(){
+  // Cột: Các nhóm vị trí (GDDA, CHT, CHP, GSC, GS, GSAT, TKY)
+  const cols = [
+    { key:'GDDA', label:'GĐDA' },
+    { key:'CHT',  label:'CHT' },
+    { key:'CHP',  label:'CHP' },
+    { key:'GSC',  label:'GSC' },
+    { key:'GS',   label:'GS' },
+    { key:'GSAT', label:'GSAT' },
+    { key:'TKY',  label:'TKY' },
+  ];
+
+  let html = '<div class="tbl-wrap"><table class="raci-tbl"><thead><tr>';
+  html += '<th>Knowledge Area</th>';
+  cols.forEach(c => html += '<th>'+c.label+'</th>');
+  html += '</tr></thead><tbody>';
+
+  PMBOK_KA.forEach(ka => {
+    html += '<tr>';
+    html += '<td><b style="color:#6b21a8">'+ka.vn+'</b><br><span style="font-size:10px;color:#9ca3af">'+ka.name+'</span></td>';
+    cols.forEach(c => {
+      const val = ka.raci[c.key] || '';
+      const cls = val ? val.toLowerCase() : '';
+      html += '<td class="'+cls+'">'+val+'</td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+
+  html += '<div style="margin-top:10px;display:flex;gap:14px;flex-wrap:wrap;font-size:11px">';
+  html += '<span><b style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:4px">R</b> = Responsible — Thực hiện công việc</span>';
+  html += '<span><b style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:4px">A</b> = Accountable — Chịu trách nhiệm cuối cùng</span>';
+  html += '<span><b style="background:#fef3c7;color:#854d0e;padding:2px 8px;border-radius:4px">C</b> = Consulted — Được tham vấn</span>';
+  html += '<span><b style="background:#e0e7ff;color:#3730a3;padding:2px 8px;border-radius:4px">I</b> = Informed — Được thông báo</span>';
+  html += '</div>';
+
+  document.getElementById('raciBox').innerHTML = html;
+}
+
+// ============================================================
+// ===== v1.5: QUICK CALCULATOR (Tính Phổ Thông) =====
+// Dựa trên Báo cáo Định biên Nhân sự 2026
+// ============================================================
+
+// Hệ số biến động thời gian — Dựa trên Brooks's Law và kinh nghiệm thực tế
+const TIME_SCENARIOS = {
+  normal:   { coef: 1.00, desc: 'Chuẩn — Theo tiến độ kế hoạch' },
+  extend10: { coef: 1.05, desc: 'Kéo dài 10% — Bộ máy QL duy trì lâu hơn' },
+  extend25: { coef: 1.12, desc: 'Kéo dài 25% — Phụ phí cố định tăng vừa' },
+  extend50: { coef: 1.22, desc: 'Kéo dài 50% — Chi phí cố định tăng đáng kể' },
+  crash10:  { coef: 1.08, desc: 'Rút 10% — Tăng ca, thêm 1 ca/ngày' },
+  crash25:  { coef: 1.20, desc: 'Rút 25% — Fast-track, thêm GS' },
+  crash40:  { coef: 1.35, desc: 'Rút 40% — Crash schedule, 3 ca' },
+  custom:   { coef: 1.00, desc: 'Tùy chỉnh' },
+};
+
+// Tham số chuẩn theo loại hình (từ Báo cáo Định biên 2026)
+// QC_DEFAULTS và onQuickTypeChange định nghĩa trong SYNC ENGINE ở trên
+
+function reloadQuickDefaults(){
+  const t = document.getElementById('qcType').value;
+  const d = QC_DEFAULTS[t];
+  if (!d) return;
+  document.getElementById('qcR').value = d.R.toFixed(2);
+  document.getElementById('qcL').value = d.L.toFixed(1);
+  document.getElementById('qcN').value = '';
+  updateQuickCalc();
+}
+
+function applyTimeScenario(){
+  const sc = document.getElementById('qcTimeScenario').value;
+  if (sc === 'custom') {
+    // Giữ giá trị custom hiện tại
+    updateQuickCalc();
+    return;
+  }
+  const cfg = TIME_SCENARIOS[sc];
+  if (!cfg) return;
+  document.getElementById('qcTimeCoef').value = cfg.coef.toFixed(2);
+  updateQuickCalc();
+}
+
+function onTimeCoefChange(){
+  document.getElementById('qcTimeScenario').value = 'custom';
+  updateQuickCalc();
+}
+
+function qcAutoN(){
+  // Tự tính N từ R, GTT, L, T
+  const v = getQuickInputs();
+  const QL_million = v.GTT * 1000 * v.R / 100;  // QL theo triệu VND (vì L tính bằng triệu)
+  const N = (v.L * v.T) > 0 ? Math.round(QL_million / (v.L * v.T)) : 0;
+  document.getElementById('qcN').value = N;
+  updateQuickCalc();
+}
+
+function getQuickInputs(){
+  // Đọc trực tiếp từ APP_STATE — luôn đồng bộ
+  return {
+    type:     APP_STATE.projectType,
+    GTT:      APP_STATE.projectValue,
+    T:        APP_STATE.duration,
+    L:        APP_STATE.qcL,
+    R:        APP_STATE.qcR,
+    N:        APP_STATE.qcN,
+    timeCoef: APP_STATE.timeCoef,
+  };
+}
+
+function updateQuickCalc(){
+  const v = getQuickInputs();
+  const d = QC_DEFAULTS[v.type];
+
+  // CT [1]: QL (chuẩn, chưa hiệu chỉnh thời gian) = GTT × R, đơn vị tỷ VND
+  const QL_base_billion = v.GTT * v.R / 100;
+  // Đổi sang triệu để khớp đơn vị L
+  const QL_base_million = QL_base_billion * 1000;
+
+  // CT [2]: N từ QL/L/T (nếu user không override)
+  const N_auto = (v.L * v.T) > 0 ? Math.round(QL_base_million / (v.L * v.T)) : 0;
+  const N_used = (v.N !== null && v.N > 0) ? v.N : N_auto;
+
+  // CT [3]: L kiểm tra (back-calc)
+  const L_check = (N_used * v.T) > 0 ? (QL_base_million / (N_used * v.T)) : 0;
+
+  // CT [4]: Năng suất lao động
+  const NSLD_year = N_used > 0 ? (v.GTT / N_used * 12 / v.T) : 0; // tỷ/người/năm
+  const NSLD_proj = N_used > 0 ? (v.GTT / N_used) : 0;            // tỷ/người/dự án
+
+  // CT [5]: Hồi quy nhanh
+  const N_reg = 0.034 * v.GTT + 16.96;
+
+  // Hiệu chỉnh thời gian
+  const QL_adj_billion = QL_base_billion * v.timeCoef;
+  const QL_adj_million = QL_adj_billion * 1000;
+  const R_adj = v.R * v.timeCoef;
+
+  // So sánh với chuẩn loại hình
+  const isStandardR = Math.abs(v.R - d.R) < 0.01;
+  const isStandardL = Math.abs(v.L - d.L) < 0.1;
+
+  let html = '';
+
+  // Top cards
+  html += '<div class="summary-grid" style="margin-bottom:14px">';
+  html += '<div class="card" style="border-left:4px solid #065f46"><div class="card-val" style="color:#065f46;font-size:20px">'+QL_base_billion.toFixed(2)+' tỷ</div><div class="card-label">QL Định biên (chuẩn)</div><div class="card-sub">= '+v.GTT+' × '+v.R+'%</div></div>';
+  html += '<div class="card" style="border-left:4px solid #9a3412"><div class="card-val" style="color:#9a3412;font-size:20px">'+QL_adj_billion.toFixed(2)+' tỷ</div><div class="card-label">QL Hiệu chỉnh thời gian (×'+v.timeCoef.toFixed(2)+')</div><div class="card-sub">% hiệu chỉnh: '+R_adj.toFixed(2)+'%</div></div>';
+  html += '<div class="card" style="border-left:4px solid #0f3460"><div class="card-val" style="color:#0f3460;font-size:20px">'+N_used+' người</div><div class="card-label">N — Số nhân sự</div><div class="card-sub">'+(v.N ? 'User nhập' : 'Auto-tính từ QL/L/T')+'</div></div>';
+  html += '<div class="card" style="border-left:4px solid #7b2cbf"><div class="card-val" style="color:#7b2cbf;font-size:20px">'+L_check.toFixed(1)+' tr</div><div class="card-label">L — Kiểm tra (back-calc)</div><div class="card-sub">L mong muốn: '+v.L.toFixed(1)+' tr</div></div>';
+  html += '<div class="card" style="border-left:4px solid #0a9396"><div class="card-val" style="color:#0a9396;font-size:20px">'+NSLD_year.toFixed(2)+' tỷ/ng/năm</div><div class="card-label">Năng suất Lao động</div><div class="card-sub">Chuẩn: 15 tỷ/ng/năm '+(NSLD_year >= 15 ? '✅' : '⚠️ Thấp')+'</div></div>';
+  html += '<div class="card" style="border-left:4px solid #f59e0b"><div class="card-val" style="color:#f59e0b;font-size:20px">'+Math.round(N_reg)+' người</div><div class="card-label">N theo Hồi quy</div><div class="card-sub">N = 0.034×GTT + 16.96</div></div>';
+  html += '</div>';
+
+  // Detail table
+  html += '<div style="background:#f8fafc;padding:14px;border-radius:10px;font-size:13px;line-height:2">';
+  html += '<b style="color:#0f3460;font-size:13px">📐 CHI TIẾT TÍNH TOÁN:</b><br>';
+  html += '<div class="info-row"><span>[1] Quỹ lương = GTT × R</span><b>'+v.GTT+' tỷ × '+v.R+'% = '+QL_base_billion.toFixed(2)+' tỷ VND</b></div>';
+  html += '<div class="info-row"><span>[2] N = QL ÷ (L × T)</span><b>'+QL_base_million.toFixed(0)+' tr ÷ ('+v.L+' tr × '+v.T+' th) = '+N_auto+' người</b></div>';
+  html += '<div class="info-row"><span>[3] L = QL ÷ (N × T) (back-calc)</span><b>'+QL_base_million.toFixed(0)+' tr ÷ ('+N_used+' × '+v.T+' th) = '+L_check.toFixed(2)+' tr</b></div>';
+  html += '<div class="info-row"><span>[4] NSLĐ = GTT ÷ N</span><b>'+v.GTT+' tỷ ÷ '+N_used+' ng = '+NSLD_proj.toFixed(3)+' tỷ/ng/DA = '+NSLD_year.toFixed(2)+' tỷ/ng/năm</b></div>';
+  html += '<div class="info-row"><span>[5] N hồi quy = 0.034×GTT+16.96</span><b>'+N_reg.toFixed(1)+' người (tham chiếu)</b></div>';
+  html += '<div class="info-row" style="background:#fef3c7;margin:6px -8px;padding:6px 8px;border-radius:6px"><span>⏱️ Hệ số biến động thời gian</span><b style="color:#9a3412">×'+v.timeCoef.toFixed(2)+'</b></div>';
+  html += '<div class="info-row" style="background:#fee2e2;margin:6px -8px;padding:6px 8px;border-radius:6px"><span><b>💰 QL HIỆU CHỈNH (cuối cùng)</b></span><b style="color:#e94560;font-size:14px">'+QL_adj_billion.toFixed(2)+' tỷ VND</b></div>';
+  html += '<div class="info-row"><span>📊 % hiệu chỉnh trên GTT</span><b style="color:#9a3412">'+R_adj.toFixed(2)+'% (gốc '+v.R+'%)</b></div>';
+  html += '</div>';
+
+  // Comparison with standard
+  if (!isStandardR || !isStandardL) {
+    html += '<div style="margin-top:10px;padding:10px;background:#dbeafe;border-radius:8px;font-size:12px;color:#1e40af">';
+    html += '<b>📍 So với chuẩn '+d.label+':</b> ';
+    if (!isStandardR) html += 'R hiện tại '+v.R+'% '+(v.R > d.R ? 'CAO HƠN' : 'THẤP HƠN')+' chuẩn '+d.R+'% (Δ '+(v.R-d.R>0?'+':'')+(v.R-d.R).toFixed(2)+'%). ';
+    if (!isStandardL) html += 'L hiện tại '+v.L+' tr '+(v.L > d.L ? 'CAO HƠN' : 'THẤP HƠN')+' chuẩn '+d.L+' tr (Δ '+(v.L-d.L>0?'+':'')+(v.L-d.L).toFixed(1)+' tr).';
+    html += '</div>';
+  }
+
+  document.getElementById('qcResults').innerHTML = html;
+  renderQcRuleTable();
+}
+
+function renderQcRuleTable(){
+  const v = getQuickInputs();
+  const rules = [
+    { name:'1:4:5', ql:1, cv:4, nv:5, desc:'Agile/PMBOK 7 - Quality-focused' },
+    { name:'1:3:6', ql:1, cv:3, nv:6, desc:'Traditional/Waterfall - Phổ biến' },
+    { name:'1:2:7', ql:1, cv:2, nv:7, desc:'Heavy-execution' },
+    { name:'1:5:4', ql:1, cv:5, nv:4, desc:'Quality-heavy' },
+  ];
+
+  // Lấy N hiện tại
+  const v2 = getQuickInputs();
+  const QL_million = v2.GTT * 1000 * v2.R / 100;
+  const N_auto = (v2.L * v2.T) > 0 ? Math.round(QL_million / (v2.L * v2.T)) : 0;
+  const N = (v2.N !== null && v2.N > 0) ? v2.N : N_auto;
+
+  let html = '<div class="tbl-wrap"><table class="rule-compare-tbl"><thead><tr>';
+  html += '<th style="text-align:left">Quy tắc</th><th>QL</th><th>CV</th><th>NV</th><th>Tổng</th><th>Đặc điểm</th>';
+  html += '</tr></thead><tbody>';
+
+  rules.forEach(r => {
+    const sum = r.ql + r.cv + r.nv;
+    const ql = Math.round(N * r.ql / sum);
+    const cv = Math.round(N * r.cv / sum);
+    const nv = N - ql - cv;
+    html += '<tr>';
+    html += '<td class="rule-name"><b>'+r.name+'</b></td>';
+    html += '<td style="font-weight:800;color:#f59e0b">'+ql+'</td>';
+    html += '<td style="font-weight:800;color:#3b82f6">'+cv+'</td>';
+    html += '<td style="font-weight:800;color:#22c55e">'+nv+'</td>';
+    html += '<td style="font-weight:800">'+N+'</td>';
+    html += '<td style="text-align:left;font-size:11px;color:#666">'+r.desc+'</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  html += '<div class="notice" style="margin-top:8px">💡 Với N = <b>'+N+' người</b> được tính từ QL và L, áp các quy tắc tỷ lệ để phân vào ngạch QL/CV/NV.</div>';
+  document.getElementById('qcRuleTable').innerHTML = html;
+}
+
+function applyQuickToStaff(){
+  // Lấy N từ quick calc và áp dụng phân bổ tự động 1:3:6 (mặc định) vào staff
+  const v = getQuickInputs();
+  const QL_million = v.GTT * 1000 * v.R / 100;
+  const N_auto = (v.L * v.T) > 0 ? Math.round(QL_million / (v.L * v.T)) : 0;
+  const N = (v.N !== null && v.N > 0) ? v.N : N_auto;
+
+  if (N <= 0) { alert('⚠️ Không thể tính được số nhân sự từ tham số hiện tại.'); return; }
+
+  // Đồng bộ tab Phân bổ Tự động
+  document.getElementById('totalStaffCount').value = N;
+  // Đồng bộ tiến độ + loại hình + GTT vào tab Thông tin
+  document.getElementById('projectDuration').value = v.T;
+  document.getElementById('projectValue').value = v.GTT;
+  document.getElementById('projectType').value = v.type;
+
+  updateAll();
+  switchTab('auto');
+  setTimeout(() => updateAutoAllocation(), 100);
+  alert('✅ Đã chuyển sang tab Phân bổ Tự động với N='+N+' người, T='+v.T+' tháng, GTT='+v.GTT+' tỷ.\nBạn có thể chọn quy tắc 1:N:M và bấm "Áp dụng" để vào bảng nhân sự.');
+}
+
+function exportQuickCSV(){
+  const v = getQuickInputs();
+  const d = QC_DEFAULTS[v.type];
+  const QL_base_billion = v.GTT * v.R / 100;
+  const QL_adj_billion = QL_base_billion * v.timeCoef;
+  const QL_million = QL_base_billion * 1000;
+  const N_auto = (v.L * v.T) > 0 ? Math.round(QL_million / (v.L * v.T)) : 0;
+  const N_used = (v.N !== null && v.N > 0) ? v.N : N_auto;
+  const L_check = (N_used * v.T) > 0 ? (QL_million / (N_used * v.T)) : 0;
+  const NSLD_year = N_used > 0 ? (v.GTT / N_used * 12 / v.T) : 0;
+  const N_reg = 0.034 * v.GTT + 16.96;
+
+  let csv = '\uFEFF';
+  csv += 'TÍNH PHỔ THÔNG - CHI PHÍ NHÂN SỰ DỰ ÁN\n';
+  csv += 'Theo Báo cáo Định biên Nhân sự 2026\n\n';
+  csv += 'THAM SỐ ĐẦU VÀO\n';
+  csv += 'Loại hình,'+d.label+'\n';
+  csv += 'GTT (Giá trị gói thầu) tỷ VND,'+v.GTT+'\n';
+  csv += 'T (Tiến độ) tháng,'+v.T+'\n';
+  csv += 'L (Lương TB) tr/ng/tháng,'+v.L+'\n';
+  csv += 'R (Tỷ lệ %) ,'+v.R+'%\n';
+  csv += 'N (Số NS - '+(v.N?'user':'auto')+'),'+N_used+'\n';
+  csv += 'Hệ số biến động thời gian,×'+v.timeCoef.toFixed(2)+'\n\n';
+  csv += 'KẾT QUẢ\n';
+  csv += '[1] QL chuẩn = GTT × R,'+QL_base_billion.toFixed(2)+' tỷ\n';
+  csv += '[2] N từ QL/L/T,'+N_auto+' người\n';
+  csv += '[3] L back-calc,'+L_check.toFixed(2)+' tr\n';
+  csv += '[4] NSLĐ năm,'+NSLD_year.toFixed(2)+' tỷ/ng/năm\n';
+  csv += '[5] N hồi quy,'+N_reg.toFixed(1)+' người\n';
+  csv += 'QL hiệu chỉnh thời gian,'+QL_adj_billion.toFixed(2)+' tỷ\n';
+
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'TinhPhoThong_NhanSu.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===== SUMMARY =====
+function calcTotals(){
+  let totalPeople = 0, totalCost = 0;
+  const byNgach = { QLCC: 0, QL: 0, CV: 0, NV: 0 };
+  const lines = [];
+
+  STAFF_DATA.forEach(s => {
+    const st = staffState[s.code];
+    const qty = st.qty || 0;
+    const months = st.months || 0;
+    if (qty === 0 || months === 0) return;
+    const perMonth = s.hard + s.welfare;
+    const lineTotal = qty * perMonth * months;
+    totalPeople += qty;
+    totalCost += lineTotal;
+    // Dùng phân loại theo CHỨC DANH (getStaffGroup) thay vì ngạch lương
+    const ngachGroup = getStaffGroup(s.code, s.ngach);
+    byNgach[ngachGroup] = (byNgach[ngachGroup] || 0) + lineTotal;
+    lines.push({ ...s, qty, months, perMonth, lineTotal, group: ngachGroup });
+  });
+
+  return { totalPeople, totalCost, byNgach, lines };
+}
+
+function getStatusInfo(actualPct, ccmPct){
+  // Xanh: thấp hơn CCM (tiết kiệm) | Vàng: ±10% | Đỏ: vượt > 10%
+  const diff = actualPct - ccmPct;
+  if (diff < -0.3) return { status:'under', color:'#0a9396', label:'Thấp hơn CCM', cls:'alert-info' };
+  if (Math.abs(diff) <= 0.3) return { status:'on', color:'#0a9396', label:'Đạt mục tiêu', cls:'alert-success' };
+  if (diff <= 0.6) return { status:'over', color:'#bb6016', label:'Vượt nhẹ CCM', cls:'alert-warning' };
+  return { status:'far-over', color:'#e94560', label:'Vượt nhiều CCM', cls:'alert-danger' };
+}
+
+function renderSummary(){
+  const p = getProjectInputs();
+  const ccm = getCurrentCCM();
+  const totals = calcTotals();
+  const projectValueVND = p.value * 1e9;
+  const actualPct = projectValueVND > 0 ? (totals.totalCost / projectValueVND) * 100 : 0;
+  const targetBudget = projectValueVND * ccm.rate / 100;
+  const variance = totals.totalCost - targetBudget;
+  const status = getStatusInfo(actualPct, ccm.rate);
+
+  // Alert
+  let alertHtml = '<div class="alert '+status.cls+'">';
+  alertHtml += '<b>📊 KẾT QUẢ:</b> ' + status.label + ' — ';
+  alertHtml += 'Quỹ lương thực tế <b>' + fmtPct(actualPct) + '</b> ';
+  alertHtml += '(' + (actualPct > ccm.rate ? 'cao hơn' : 'thấp hơn') + ' CCM đề xuất <b>' + fmtPct(ccm.rate) + '</b> ';
+  alertHtml += (variance >= 0 ? '+' : '') + fmtBn(variance) + ')';
+  alertHtml += '</div>';
+  document.getElementById('summaryAlert').innerHTML = alertHtml;
+
+  // Cards
+  const adjBadge = ccm.applies && Math.abs(ccm.coef - 1) > 0.001 ? ' (×'+ccm.coef.toFixed(2)+')' : '';
+  const cards = [
+    { l:'Quỹ lương Thực tế', v: fmtBn(totals.totalCost), s: fmtMoney(totals.totalCost), c:'#e94560' },
+    { l:'Ngân sách CCM'+adjBadge, v: fmtBn(targetBudget), s: fmtPct(ccm.rate)+(adjBadge?' (gốc '+fmtPct(ccm.baseRate)+')':''), c:'#0a9396' },
+    { l:'Chênh lệch', v: (variance >= 0 ? '+' : '') + fmtBn(variance), s: (variance >= 0 ? 'Vượt' : 'Dưới') + ' ngân sách', c: status.color },
+    { l:'% Thực tế / Doanh thu', v: fmtPct(actualPct), s:'CCM: '+fmtPct(ccm.rate), c: status.color },
+    { l:'Tổng nhân sự', v: totals.totalPeople + ' người', s:'Trên ' + p.duration + ' tháng', c:'#0f3460' },
+    { l:'Chi phí TB/người/tháng', v: totals.totalPeople > 0 && p.duration > 0 ? fmt(totals.totalCost / totals.totalPeople / p.duration) : '0', s:'VND', c:'#7b2cbf' },
+  ];
+  document.getElementById('summaryCards').innerHTML = cards.map(c =>
+    '<div class="card" style="border-left:4px solid '+c.c+'">'
+    + '<div class="card-val" style="color:'+c.c+';font-size:18px">'+c.v+'</div>'
+    + '<div class="card-label">'+c.l+'</div>'
+    + '<div class="card-sub">'+c.s+'</div></div>'
+  ).join('');
+
+  // Project info
+  const adj = getAdjustmentInfo();
+  let infoHtml = '<div class="info-row"><span>Tên dự án</span><b>'+p.name+'</b></div>' +
+    '<div class="info-row"><span>Chủ đầu tư</span><b>'+p.owner+'</b></div>' +
+    '<div class="info-row"><span>Loại hình</span><b>'+TYPE_LABELS[p.type]+'</b></div>' +
+    '<div class="info-row"><span>Giá trị Doanh thu</span><b>'+p.value+' tỷ VND ('+sizeLabel(ccm.bucket)+')</b></div>' +
+    '<div class="info-row"><span>Tiến độ</span><b>'+p.duration+' tháng</b></div>' +
+    '<div class="info-row"><span>Miền chính</span><b>'+(p.defaultRegion === 'CM' ? 'Cùng miền' : 'Trái miền')+'</b></div>';
+  if (adj.applies) {
+    infoHtml += '<div class="info-row"><span>Phạm vi công việc (Scope)</span><b>'+SCOPE_LABELS[adj.scopeKey]+' (×'+adj.scopeCoef.toFixed(2)+')</b></div>';
+    infoHtml += '<div class="info-row"><span>Mức chồng chéo (Overlap)</span><b>'+OVERLAP_LABELS[adj.overlapKey]+' (×'+adj.overlapCoef.toFixed(2)+')</b></div>';
+    infoHtml += '<div class="info-row"><span>% CCM Gốc</span><b style="color:#0f3460">'+fmtPct(ccm.baseRate)+'</b></div>';
+    infoHtml += '<div class="info-row"><span>Hệ số tổng điều chỉnh</span><b style="color:#854d0e">×'+adj.totalCoef.toFixed(2)+'</b></div>';
+    infoHtml += '<div class="info-row"><span>% CCM Áp dụng (Hiệu chỉnh)</span><b style="color:#e94560;font-size:14px">'+fmtPct(ccm.rate)+'</b></div>';
+  } else {
+    infoHtml += '<div class="info-row"><span>% CCM áp dụng</span><b style="color:#e94560">'+fmtPct(ccm.rate)+'</b></div>';
+  }
+  document.getElementById('projectInfo').innerHTML = infoHtml;
+
+  // Comparison
+  const targetBudgetBase = projectValueVND * ccm.baseRate / 100;
+  let cmpHtml = '<table style="width:100%;border-collapse:collapse">';
+  cmpHtml += '<tr style="background:#f5f5f5"><th style="padding:8px;text-align:left;font-size:12px">Chỉ tiêu</th><th style="padding:8px;text-align:right;font-size:12px">Giá trị (VND)</th><th style="padding:8px;text-align:right;font-size:12px">% so DT</th></tr>';
+  cmpHtml += '<tr><td style="padding:8px;border-bottom:1px solid #eee">Doanh thu Dự án</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;font-weight:700">'+fmt(projectValueVND)+'</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee">100.00%</td></tr>';
+  if (adj.applies && Math.abs(adj.totalCoef - 1) > 0.001) {
+    cmpHtml += '<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#888">Ngân sách CCM Gốc (chưa hiệu chỉnh)</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;color:#888">'+fmt(targetBudgetBase)+'</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;color:#888">'+fmtPct(ccm.baseRate)+'</td></tr>';
+  }
+  cmpHtml += '<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#0a9396"><b>Ngân sách CCM Áp dụng</b>'+(adj.applies && Math.abs(adj.totalCoef - 1) > 0.001 ? ' (×'+adj.totalCoef.toFixed(2)+')' : '')+'</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;font-weight:700;color:#0a9396">'+fmt(targetBudget)+'</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;color:#0a9396;font-weight:700">'+fmtPct(ccm.rate)+'</td></tr>';
+  cmpHtml += '<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#e94560"><b>Quỹ lương Thực tế</b></td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;font-weight:700;color:#e94560">'+fmt(totals.totalCost)+'</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;color:#e94560;font-weight:700">'+fmtPct(actualPct)+'</td></tr>';
+  cmpHtml += '<tr style="background:'+(variance>=0?'#fee2e2':'#dcfce7')+'"><td style="padding:8px;font-weight:800">Chênh lệch (Thực tế vs CCM Áp dụng)</td><td style="padding:8px;text-align:right;font-weight:800">'+(variance>=0?'+':'')+fmt(variance)+'</td><td style="padding:8px;text-align:right;font-weight:800">'+(variance>=0?'+':'')+(actualPct-ccm.rate).toFixed(2)+'%</td></tr>';
+  cmpHtml += '</table>';
+  document.getElementById('comparisonBox').innerHTML = cmpHtml;
+
+  // Distribution
+  const groupColors = { QLCC:'#5b21b6', QL:'#166534', CV:'#854d0e', NV:'#6b21a8' };
+  const groupCounts = { QLCC:0, QL:0, CV:0, NV:0 };
+  const groupCodes  = { QLCC:[], QL:[], CV:[], NV:[] };
+  totals.lines.forEach(l => {
+    groupCounts[l.group] = (groupCounts[l.group] || 0) + l.qty;
+    if (groupCodes[l.group]) groupCodes[l.group].push(l.code + '×' + l.qty);
+  });
+
+  let distHtml = '<table style="width:100%;border-collapse:collapse">';
+  distHtml += '<tr style="background:#f5f5f5"><th style="padding:8px;text-align:left;font-size:12px">Nhóm</th><th style="padding:8px;text-align:right;font-size:12px">Số người</th><th style="padding:8px;text-align:right;font-size:12px">Quỹ lương</th><th style="padding:8px;text-align:left;font-size:12px;width:30%">% Cơ cấu Quỹ</th><th style="padding:8px;text-align:left;font-size:12px">Chức danh</th></tr>';
+  const ngachNames = {
+    QLCC:'QLCC — Quản lý Cấp cao (GDK, GDDA)',
+    QL:  'QL — Quản lý Công trường (CHT)',
+    CV:  'CV — Chuyên viên (CHP, GSC, GS1, GSAT1)',
+    NV:  'NV — Nhân viên (GS2, GSAT2, TKY, TKHO)',
+  };
+  const bgColors = { QLCC:'#ede9fe', QL:'#dcfce7', CV:'#fef3c7', NV:'#f3e8ff' };
+  ['QLCC','QL','CV','NV'].forEach(g => {
+    const v = totals.byNgach[g] || 0;
+    const pct = totals.totalCost > 0 ? (v / totals.totalCost) * 100 : 0;
+    const cnt = groupCounts[g] || 0;
+    const codes = groupCodes[g] && groupCodes[g].length > 0 ? groupCodes[g].join(', ') : '<i style="color:#bbb">—</i>';
+    distHtml += '<tr style="background:'+(cnt>0?bgColors[g]:'#fff')+'">';
+    distHtml += '<td style="padding:8px;border-bottom:1px solid #eee;font-weight:700;color:'+groupColors[g]+'">'+ngachNames[g]+'</td>';
+    distHtml += '<td style="padding:8px;text-align:right;border-bottom:1px solid #eee;font-weight:700;color:'+groupColors[g]+'">'+cnt+' người</td>';
+    distHtml += '<td style="padding:8px;text-align:right;border-bottom:1px solid #eee;font-weight:700">'+fmt(v)+'</td>';
+    distHtml += '<td style="padding:8px;border-bottom:1px solid #eee">';
+    distHtml += '<span class="chart-bar" style="width:'+Math.max(2,pct*2.5)+'px;background:linear-gradient(90deg,'+groupColors[g]+',#0f3460)"></span> <b>'+pct.toFixed(1)+'%</b>';
+    distHtml += '</td>';
+    distHtml += '<td style="padding:8px;border-bottom:1px solid #eee;font-size:11px;color:#555">'+codes+'</td>';
+    distHtml += '</tr>';
+  });
+  distHtml += '</table>';
+  document.getElementById('distributionBox').innerHTML = distHtml;
+}
+
+// ===== DETAILED REPORT =====
+function renderDetailedReport(){
+  const p = getProjectInputs();
+  const ccm = getCurrentCCM();
+  const totals = calcTotals();
+  const projectValueVND = p.value * 1e9;
+  const actualPct = projectValueVND > 0 ? (totals.totalCost / projectValueVND) * 100 : 0;
+
+  let html = '<div style="margin-bottom:14px;padding:10px;background:#f8f9fc;border-radius:8px;font-size:12px;line-height:1.8">';
+  html += '<b>Dự án:</b> '+p.name+' | <b>Loại:</b> '+TYPE_LABELS[p.type]+' | ';
+  html += '<b>DT:</b> '+p.value+' tỷ | <b>Tiến độ:</b> '+p.duration+' tháng<br>';
+  if (ccm.applies && Math.abs(ccm.coef - 1) > 0.001) {
+    const adj = getAdjustmentInfo();
+    html += '<b>Scope:</b> '+SCOPE_LABELS[adj.scopeKey]+' (×'+adj.scopeCoef.toFixed(2)+') | <b>Overlap:</b> '+OVERLAP_LABELS[adj.overlapKey]+' (×'+adj.overlapCoef.toFixed(2)+') | <b>Hệ số tổng:</b> ×'+adj.totalCoef.toFixed(2)+'<br>';
+    html += '<b>% CCM Gốc:</b> '+fmtPct(ccm.baseRate)+' → <b>% CCM Hiệu chỉnh:</b> <span style="color:#e94560;font-weight:700">'+fmtPct(ccm.rate)+'</span> | <b>% Thực tế:</b> <span style="color:#0a9396;font-weight:700">'+fmtPct(actualPct)+'</span>';
+  } else {
+    html += '<b>% CCM:</b> '+fmtPct(ccm.rate)+' | <b>% Thực tế:</b> '+fmtPct(actualPct);
+  }
+  html += '</div>';
+
+  if (totals.lines.length === 0) {
+    html += '<div style="text-align:center;padding:40px;color:#999"><div style="font-size:32px;margin-bottom:8px">📋</div><div>Chưa có nhân sự được nhập. Quay lại tab <b>Cơ cấu Nhân sự</b> để thêm.</div></div>';
+    document.getElementById('detailedReport').innerHTML = html;
+    return;
+  }
+
+  html += '<div class="tbl-wrap"><table>';
+  html += '<thead><tr>';
+  ['STT','Code','Chức danh','Nhóm','Miền','Lương cứng','Phúc lợi','Tổng/tháng','SL','Số tháng','Thành tiền','% / Quỹ'].forEach(h =>
+    html += '<th style="font-size:11px">'+h+'</th>'
+  );
+  html += '</tr></thead><tbody>';
+
+  totals.lines.forEach((l, i) => {
+    const pct = totals.totalCost > 0 ? (l.lineTotal / totals.totalCost) * 100 : 0;
+    html += '<tr>';
+    html += '<td class="tc">'+(i+1)+'</td>';
+    html += '<td style="font-family:monospace;font-size:11px;color:#0f3460;font-weight:600">'+l.code+'</td>';
+    html += '<td style="font-weight:500">'+l.title+'</td>';
+    html += '<td class="tc"><span class="badge '+getGroupBadgeClass(l.group)+'" style="font-weight:800">'+l.group+'</span></td>';
+    html += '<td class="tc">'+(l.region || '—')+'</td>';
+    html += '<td class="num-r">'+fmt(l.hard)+'</td>';
+    html += '<td class="num-r" style="color:#888">'+fmt(l.welfare)+'</td>';
+    html += '<td class="num-r" style="font-weight:700">'+fmt(l.perMonth)+'</td>';
+    html += '<td class="tc" style="font-weight:700;color:#e94560">'+l.qty+'</td>';
+    html += '<td class="tc">'+l.months+'</td>';
+    html += '<td class="num-r" style="font-weight:800;color:#0f3460">'+fmt(l.lineTotal)+'</td>';
+    html += '<td class="num-r" style="color:#0a9396;font-weight:700">'+pct.toFixed(1)+'%</td>';
+    html += '</tr>';
+  });
+
+  html += '<tr class="row-total">';
+  html += '<td colspan="8" class="num-r">TỔNG CỘNG</td>';
+  html += '<td class="tc">'+totals.totalPeople+'</td>';
+  html += '<td class="tc">—</td>';
+  html += '<td class="num-r">'+fmt(totals.totalCost)+'</td>';
+  html += '<td class="tc">100.0%</td>';
+  html += '</tr>';
+
+  html += '</tbody></table></div>';
+
+  document.getElementById('detailedReport').innerHTML = html;
+}
+
+// ===== EXPORT CSV =====
+function exportToCSV(){
+  const p = getProjectInputs();
+  const ccm = getCurrentCCM();
+  const totals = calcTotals();
+  const projectValueVND = p.value * 1e9;
+  const actualPct = projectValueVND > 0 ? (totals.totalCost / projectValueVND) * 100 : 0;
+
+  let csv = '\uFEFF'; // BOM for UTF-8 Excel
+  csv += 'BÁO CÁO CHI PHÍ NHÂN SỰ DỰ ÁN\n';
+  csv += 'Tên dự án,'+p.name+'\n';
+  csv += 'Chủ đầu tư,'+p.owner+'\n';
+  csv += 'Loại hình,'+TYPE_LABELS[p.type]+'\n';
+  csv += 'Giá trị DA (tỷ VND),'+p.value+'\n';
+  csv += 'Tiến độ (tháng),'+p.duration+'\n';
+  csv += '% CCM Gốc,'+ccm.baseRate.toFixed(2)+'%\n';
+  if (ccm.applies && Math.abs(ccm.coef - 1) > 0.001) {
+    const adj = getAdjustmentInfo();
+    csv += 'Scope,"'+SCOPE_LABELS[adj.scopeKey]+' (x'+adj.scopeCoef.toFixed(2)+')"\n';
+    csv += 'Overlap,"'+OVERLAP_LABELS[adj.overlapKey]+' (x'+adj.overlapCoef.toFixed(2)+')"\n';
+    csv += 'Hệ số tổng,x'+adj.totalCoef.toFixed(2)+'\n';
+    csv += '% CCM Hiệu chỉnh (Áp dụng),'+ccm.rate.toFixed(2)+'%\n';
+  } else {
+    csv += '% CCM Áp dụng,'+ccm.rate.toFixed(2)+'%\n';
+  }
+  csv += '% Thực tế,'+actualPct.toFixed(2)+'%\n';
+  csv += '\n';
+  csv += 'STT,Code,Chức danh,Nhóm,Miền,Lương cứng,Phúc lợi,Tổng/tháng,Số lượng,Số tháng,Thành tiền\n';
+
+  totals.lines.forEach((l, i) => {
+    csv += [
+      i+1,
+      l.code,
+      '"'+l.title+'"',
+      l.group,
+      l.region || '',
+      l.hard,
+      l.welfare,
+      l.perMonth,
+      l.qty,
+      l.months,
+      l.lineTotal
+    ].join(',') + '\n';
+  });
+
+  csv += ',,,,,,,,TỔNG,'+totals.totalPeople+','+totals.totalCost+'\n';
+
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ChiPhiNhanSu_'+(p.name||'DuAn').replace(/[^a-zA-Z0-9]/g,'_')+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===== INIT =====
+window.addEventListener('DOMContentLoaded', () => {
+  // Load L, R mặc định theo loại hình khởi tạo
+  const d = QC_DEFAULTS[APP_STATE.projectType];
+  if (d) { APP_STATE.qcL = d.L; APP_STATE.qcR = d.R; }
+  stateToUI();
+  renderFlowBar('input');
+  updateAll();
+  renderStaffTable();
+});
+</script>
+
+</body>
+</html>
